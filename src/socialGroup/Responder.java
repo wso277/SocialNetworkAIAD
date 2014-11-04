@@ -1,5 +1,6 @@
 package socialGroup;
 
+import exceptions.WrongProbabilityValue;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
 
@@ -17,7 +18,24 @@ public class Responder implements Stepable {
     //Probability of answering correctly to the musicType parameter (value between 0 and 1
     private float musicType;
 
-    public Responder(float location, float price, float date, float musicType) {
+    public Responder(float location, float price, float date, float musicType) throws WrongProbabilityValue {
+        if (location < 0 || location > 1) {
+            throw new WrongProbabilityValue("Wrong location probability: " + location);
+        }
+        if (price < 0 || price > 1) {
+            throw new WrongProbabilityValue("Wrong price probability: " + price);
+        }
+        if (date < 0 || date > 1) {
+            throw new WrongProbabilityValue("Wrong date probability: " + date);
+        }
+        if (musicType < 0 || musicType > 1) {
+            throw new WrongProbabilityValue("Wrong musicType probability: " + musicType);
+        }
+
+        this.location = location;
+        this.date = date;
+        this.musicType = musicType;
+        this.price = price;
 
     }
 
