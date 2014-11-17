@@ -43,7 +43,7 @@ public class Responder implements Stepable {
         this.date = date;
         this.musicType = musicType;
         this.price = price;
-
+        alreadyAnswered = new ArrayList<>();
     }
 
     public void step() {
