@@ -12,7 +12,7 @@ public class Requester implements Stepable {
             "Real", "Braga", "Portalegre", "Castelo Branco", "Viseu", "Beja", "Braganaa", "Acores", "Madeira",
             "Setubal", "Santarem", "Viana do Castelo"};*/
 
-    public static ArrayList<String> MusicTypes = new ArrayList<String>() {{
+    public static final ArrayList<String> MusicTypes = new ArrayList<String>() {{
         add("ROCK");
         add("CLASSIC");
         add("JAZZ");
@@ -35,6 +35,7 @@ public class Requester implements Stepable {
     private Date date2;
     private String musicType;
     private int id;
+    private ArrayList<Response> responses;
 
     public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws
             WrongDateException {
@@ -47,6 +48,7 @@ public class Requester implements Stepable {
         this.date2 = date2;
         this.musicType = musicType;
         this.id = id;
+        responses = new ArrayList<>();
     }
 
     public void step() {

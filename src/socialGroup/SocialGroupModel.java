@@ -11,8 +11,8 @@ import java.util.Random;
 public class SocialGroupModel extends SimpleModel {
     private int numberOfAgents;
     private String name;
-    final int MAX_DISTANCE = 50;
-    final int MAX_PRICE = 100;
+    public static final int MAX_DISTANCE = 100;
+    public static final int MAX_PRICE = 100;
 
     public SocialGroupModel(String name, int numberOfAgents) {
         this.name = name;

@@ -82,6 +82,39 @@ public class Date {
         return arr;
     }
 
+    public static Date getNewDate() {
+        Random r = new Random();
+        Date date1;
+        do {
+            try {
+                date1 = new Date(r.nextInt(31) + 1, r.nextInt(12) + 1, r.nextInt(10) + 2014);
+            } catch (WrongDateException e) {
+                continue;
+            }
+            break;
+        } while (true);
+
+        return date1;
+    }
+
+    public static Date getBiggerDate(Date date1) {
+        Random r = new Random();
+        Date date2;
+
+        do {
+            try {
+                date2 = new Date(r.nextInt(31) + 1, r.nextInt(12) + 1, r.nextInt(10) + 2014);
+            } catch (WrongDateException e) {
+                continue;
+            }
+            if (date1.isEarlier(date2)) {
+                break;
+            }
+        } while (true);
+
+        return date2;
+    }
+
     public int getDay() {
         return day;
     }

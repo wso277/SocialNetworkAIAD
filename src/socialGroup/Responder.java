@@ -8,6 +8,7 @@ import util.Date;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Wilson on 04/11/2014.
@@ -48,9 +49,45 @@ public class Responder implements Stepable {
     }
 
     public void step() {
-        Stepable stepable = (Stepable) Main.socialModel.getAgentList().get(0);
-        if(stepable instanceof Requester && alreadyAnswered.f){
+        Random r = new Random();
+        Stepable stepable;
+        do {
+            stepable = (Stepable) Main.getSocialModel().getAgentList().get(r.nextInt(Main.getSocialModel()
+                    .getAgentList().size()));
 
+        } while (!(stepable instanceof Requester));
+
+        Requester req = (Requester) stepable;
+        if (!alreadyAnswered.contains(req.getId())) {
+            Response res = new Response();
+            if (r.nextFloat() < location) {
+                res.setLocation(req.getLocation());
+            } else {
+                res.setLocation(r.nextInt(Main.getSocialModel().MAX_DISTANCE) + req.getLocation());
+            }
+
+            if (r.nextFloat() < price) {
+                res.setPrice(req.getPrice());
+            } else {
+                res.setPrice(r.nextInt(Main.getSocialModel().MAX_DISTANCE) + req.getPrice());
+            }
+
+            if (r.nextFloat() < date) {
+                res.setDate(req.getDate2());
+            } else {
+                res.setDate(Date.getBiggerDate(req.getDate2()));
+            }
+
+            if (r.nextFloat() < musicType) {
+                res.setMusicType(req.getMusicType());
+            } else {
+                if (Requester.MusicTypes.get(0) != req.getMusicType()) {
+                    res.setMusicType(Requester.MusicTypes.get(0));
+                } else {
+                    res.setMusicType(Requester.MusicTypes.get(1));
+                }
+            }
         }
+        alreadyAnswered.add(req.getId());
     }
 }
