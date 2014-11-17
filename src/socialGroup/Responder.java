@@ -5,8 +5,6 @@ import exceptions.WrongProbabilityValue;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
