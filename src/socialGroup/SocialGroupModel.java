@@ -24,17 +24,24 @@ public class SocialGroupModel extends SimpleModel {
 
     public void buildModel() {
         Random r = new Random();
+        float requesterValue;
+        int numberOfRequesters, numberOfResponders;
+        do {
+            requesterValue = r.nextFloat();
+        } while (requesterValue < 0.3 || requesterValue > 0.7);
 
-        int numberOfRequesters = (int) (r.nextFloat() * numberOfAgents);
+        numberOfRequesters = (int) (requesterValue * numberOfAgents);
+
         System.out.println("Number of requesters: " + numberOfRequesters);
-        int numberOfResponders = numberOfAgents - numberOfRequesters;
+        numberOfResponders = numberOfAgents - numberOfRequesters;
 
         System.out.println("Number of responders: " + numberOfResponders);
+
         for (int i = 0; i < numberOfRequesters; i++) {
             Date[] arr = Date.getNewDates();
             try {
                 agentList.add(new Requester(r.nextInt(50) + 1, r.nextInt(100) + 1, arr[0], arr[1], Requester
-                        .MusicTypes.get(r.nextInt(12))));
+                        .MusicTypes.get(r.nextInt(11))));
             } catch (WrongDateException e) {
                 System.err.println(e.getMessage());
             }
@@ -47,7 +54,6 @@ public class SocialGroupModel extends SimpleModel {
                 System.err.println(e.getMessage());
             }
         }
-
 
         System.out.println("AgentList size: " + agentList.size());
     }
