@@ -2,6 +2,8 @@ package util;
 
 import exceptions.WrongDateException;
 
+import java.util.Random;
+
 /**
  * Created by Wilson on 04/11/2014.
  */
@@ -48,6 +50,36 @@ public class Date {
         }
 
         return true;
+    }
+
+    public static Date[] getNewDates() {
+        Date[] arr = new Date[2];
+        Random r = new Random();
+        Date date1, date2;
+        do {
+            try {
+                date1 = new Date(r.nextInt(31) + 1, r.nextInt(12) + 1, r.nextInt(10) + 2014);
+            } catch (WrongDateException e) {
+                continue;
+            }
+            break;
+        } while (true);
+
+        do {
+            try {
+                date2 = new Date(r.nextInt(31) + 1, r.nextInt(12) + 1, r.nextInt(10) + 2014);
+            } catch (WrongDateException e) {
+                continue;
+            }
+            if (date1.isEarlier(date2)) {
+                break;
+            }
+        } while (true);
+
+        arr[0] = date1;
+        arr[1] = date2;
+
+        return arr;
     }
 
     public int getDay() {

@@ -1,3 +1,4 @@
+import socialGroup.SocialGroupModel;
 import uchicago.src.sim.engine.SimInit;
 
 public class Main {
@@ -9,8 +10,8 @@ public class Main {
 
         SimInit init = new SimInit();
 
-        MyHelloWorldModel model = new MyHelloWorldModel();
+        SocialGroupModel socialModel = new SocialGroupModel("Social Group Model", 20);
 
-        init.loadModel(model, null, runMode);
+        init.loadModel(socialModel, null, runMode);
     }
 }
