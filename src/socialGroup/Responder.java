@@ -1,8 +1,13 @@
 package socialGroup;
 
+
 import exceptions.WrongProbabilityValue;
+import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * Created by Wilson on 04/11/2014.
@@ -17,6 +22,9 @@ public class Responder implements Stepable {
     private float date;
     //Probability of answering correctly to the musicType parameter (value between 0 and 1
     private float musicType;
+
+    private ArrayList<Integer> alreadyAnswered;
+
 
     public Responder(float location, float price, float date, float musicType) throws WrongProbabilityValue {
         if (location < 0 || location > 1) {
@@ -40,5 +48,9 @@ public class Responder implements Stepable {
     }
 
     public void step() {
+        Stepable stepable = (Stepable) Main.socialModel.getAgentList().get(0);
+        if(stepable instanceof Requester && alreadyAnswered.f){
+
+        }
     }
 }

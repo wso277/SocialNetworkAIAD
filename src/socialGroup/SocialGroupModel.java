@@ -5,6 +5,7 @@ import exceptions.WrongProbabilityValue;
 import uchicago.src.sim.engine.SimpleModel;
 import util.Date;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class SocialGroupModel extends SimpleModel {
@@ -43,7 +44,7 @@ public class SocialGroupModel extends SimpleModel {
             Date[] arr = Date.getNewDates();
             try {
                 agentList.add(new Requester(r.nextInt(MAX_DISTANCE), r.nextInt(MAX_PRICE), arr[0], arr[1], Requester
-                        .MusicTypes.get(r.nextInt(Requester.MusicTypes.size()))));
+                        .MusicTypes.get(r.nextInt(Requester.MusicTypes.size())), i));
             } catch (WrongDateException e) {
                 System.err.println(e.getMessage());
             }
@@ -66,5 +67,9 @@ public class SocialGroupModel extends SimpleModel {
 
     protected void postStep() {
         System.out.println("Done step " + getTickCount());
+    }
+
+    public ArrayList getAgentList(){
+        return agentList;
     }
 }

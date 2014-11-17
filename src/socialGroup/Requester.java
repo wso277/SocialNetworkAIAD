@@ -34,8 +34,9 @@ public class Requester implements Stepable {
     //last date available for concert
     private Date date2;
     private String musicType;
+    private int id;
 
-    public Requester(int location, int price, Date date1, Date date2, String musicType) throws
+    public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws
             WrongDateException {
         this.location = location;
         this.price = price;
@@ -45,8 +46,14 @@ public class Requester implements Stepable {
         this.date1 = date1;
         this.date2 = date2;
         this.musicType = musicType;
+        this.id = id;
     }
 
     public void step() {
+
+    }
+
+    public int getId(){
+        return id;
     }
 }
