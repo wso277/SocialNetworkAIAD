@@ -10,6 +10,8 @@ import java.util.Random;
 public class SocialGroupModel extends SimpleModel {
     private int numberOfAgents;
     private String name;
+    final int MAX_DISTANCE = 50;
+    final int MAX_PRICE = 100;
 
     public SocialGroupModel(String name, int numberOfAgents) {
         this.name = name;
@@ -40,8 +42,8 @@ public class SocialGroupModel extends SimpleModel {
         for (int i = 0; i < numberOfRequesters; i++) {
             Date[] arr = Date.getNewDates();
             try {
-                agentList.add(new Requester(r.nextInt(50) + 1, r.nextInt(100) + 1, arr[0], arr[1], Requester
-                        .MusicTypes.get(r.nextInt(11))));
+                agentList.add(new Requester(r.nextInt(MAX_DISTANCE), r.nextInt(MAX_PRICE), arr[0], arr[1], Requester
+                        .MusicTypes.get(r.nextInt(Requester.MusicTypes.size()))));
             } catch (WrongDateException e) {
                 System.err.println(e.getMessage());
             }

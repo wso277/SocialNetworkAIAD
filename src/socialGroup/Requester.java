@@ -28,14 +28,14 @@ public class Requester implements Stepable {
 
     //Distance the requester wants to travel
     private int location;
-    private float price;
+    private int price;
     //first date available for concert
     private Date date1;
     //last date available for concert
     private Date date2;
     private String musicType;
 
-    public Requester(int location, float price, Date date1, Date date2, String musicType) throws
+    public Requester(int location, int price, Date date1, Date date2, String musicType) throws
             WrongDateException {
         this.location = location;
         this.price = price;
