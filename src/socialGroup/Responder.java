@@ -69,7 +69,7 @@ public class Responder implements Stepable {
             if (r.nextFloat() < price) {
                 res.setPrice(req.getPrice());
             } else {
-                res.setPrice(r.nextInt(Main.getSocialModel().MAX_DISTANCE) + req.getPrice());
+                res.setPrice(r.nextInt(Main.getSocialModel().MAX_PRICE) + req.getPrice());
             }
 
             if (r.nextFloat() < date) {
