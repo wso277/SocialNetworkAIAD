@@ -81,7 +81,7 @@ public class Responder implements Stepable {
             if (r.nextFloat() < musicType) {
                 res.setMusicType(req.getMusicType());
             } else {
-                if (Requester.MusicTypes.get(0) != req.getMusicType()) {
+                if (!Requester.MusicTypes.get(0).equals(req.getMusicType())) {
                     res.setMusicType(Requester.MusicTypes.get(0));
                 } else {
                     res.setMusicType(Requester.MusicTypes.get(1));
