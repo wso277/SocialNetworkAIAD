@@ -49,4 +49,24 @@ public class Requester implements Stepable {
 
     public void step() {
     }
+
+    public int getLocation() {
+        return location;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public Date getDate1() {
+        return date1;
+    }
+
+    public Date getDate2() {
+        return date2;
+    }
+
+    public String getMusicType() {
+        return musicType;
+    }
 }
