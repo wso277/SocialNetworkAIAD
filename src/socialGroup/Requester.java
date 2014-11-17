@@ -55,6 +55,10 @@ public class Requester implements Stepable {
 
     }
 
+    public void addResponse(Response res) {
+        responses.add(res);
+    }
+
     public int getId(){
         return id;
     }

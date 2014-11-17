@@ -87,7 +87,8 @@ public class Responder implements Stepable {
                     res.setMusicType(Requester.MusicTypes.get(1));
                 }
             }
+            req.addResponse(res);
+            alreadyAnswered.add(req.getId());
         }
-        alreadyAnswered.add(req.getId());
     }
 }
