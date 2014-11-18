@@ -1,6 +1,7 @@
 package socialGroup;
 
 import exceptions.WrongDateException;
+import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
 
@@ -30,12 +31,13 @@ public class Requester implements Stepable {
     private int location;
     private int price;
     //first date available for concert
-    private Date date1;
+    private Date dateStart;
     //last date available for concert
-    private Date date2;
+    private Date dateEnd;
     private String musicType;
     private int id;
     private ArrayList<Response> responses;
+    private float locationValue, priceValue, dateValue, musicValue, deltaLocation, deltaPrice, yyLocation, yyPrice;
 
     public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws
             WrongDateException {
@@ -44,15 +46,54 @@ public class Requester implements Stepable {
         if (!date1.isEarlier(date2)) {
             throw new WrongDateException("Second date is earlier than first date!");
         }
-        this.date1 = date1;
-        this.date2 = date2;
+        this.dateStart = date1;
+        this.dateEnd = date2;
         this.musicType = musicType;
         this.id = id;
         responses = new ArrayList<>();
+
+
+
+        deltaLocation = (float) -1.0 / Main.getSocialModel().getMaxDistance();
+        yyLocation = (float) - (Main.getSocialModel().getMaxDistance() + location) * deltaLocation;
+
+        deltaPrice = (float) -1.0 / Main.getSocialModel().getMaxPrice();
+        yyPrice = (float) - (Main.getSocialModel().getMaxPrice() + price) * deltaPrice;
     }
 
     public void step() {
 
+        for (int i = 0; i < responses.size(); i++) {
+            if (responses.get(i).getLocation() <= location) {
+                locationValue = 1;
+            } else if (responses.get(i).getLocation() >= (location + Main.getSocialModel().getMaxDistance())) {
+                locationValue = 0;
+            } else {
+                locationValue = deltaLocation * responses.get(i).getLocation() + yyLocation;
+            }
+
+            if (responses.get(i).getPrice() <= price) {
+                priceValue = 1;
+            } else if (responses.get(i).getPrice() >= (price + Main.getSocialModel().getMaxDistance())) {
+                priceValue = 0;
+            } else {
+                priceValue = deltaPrice * responses.get(i).getPrice() + yyPrice;
+            }
+
+            if (responses.get(i).getDate().isEarlier(dateEnd)) {
+                dateValue = 1;
+            } else {
+                dateValue = 0;
+            }
+
+            if (responses.get(i).getMusicType().equals(musicType)) {
+                musicValue = 1;
+            } else {
+                musicValue = 0;
+            }
+
+            System.out.println("Location = "+locationValue+"\nPrice = "+priceValue+"\nDate = "+dateValue+"\nMusic = "+musicValue);
+        }
     }
 
     public void addResponse(Response res) {
@@ -71,12 +112,12 @@ public class Requester implements Stepable {
         return price;
     }
 
-    public Date getDate1() {
-        return date1;
+    public Date getDateStart() {
+        return dateStart;
     }
 
-    public Date getDate2() {
-        return date2;
+    public Date getDateEnd() {
+        return dateEnd;
     }
 
     public String getMusicType() {

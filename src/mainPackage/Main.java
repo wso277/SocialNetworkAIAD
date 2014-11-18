@@ -3,6 +3,8 @@ package mainPackage;
 import socialGroup.SocialGroupModel;
 import uchicago.src.sim.engine.SimInit;
 
+import java.util.HashMap;
+
 public class Main {
 
     private static final boolean BATCH_MODE = true;
@@ -10,6 +12,7 @@ public class Main {
     private static SocialGroupModel socialModel;
 
     public static void main(String[] args) {
+
         boolean runMode = !BATCH_MODE;
 
         SimInit init = new SimInit();

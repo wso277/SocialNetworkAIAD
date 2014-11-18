@@ -9,9 +9,9 @@ import java.util.Random;
  */
 public class Date {
 
-    private int day;
-    private int month;
-    private int year;
+    private static int day;
+    private static int month;
+    private static int year;
 
     public Date(int day, int month, int year) throws WrongDateException {
         if (month < 1 || month > 12) {
@@ -36,16 +36,16 @@ public class Date {
         this.year = year;
     }
 
-    public boolean isEarlier(Date d1) {
-        if (this.year > d1.getYear()) {
+    public static boolean isEarlier(Date d1) {
+        if (year > d1.getYear()) {
             return false;
         }
 
-        if (this.month > d1.getMonth()) {
+        if (month > d1.getMonth()) {
             return false;
         }
 
-        if (this.day > d1.getDay()) {
+        if (day > d1.getDay()) {
             return false;
         }
 

@@ -43,7 +43,7 @@ public class Responder implements Stepable {
         this.date = date;
         this.musicType = musicType;
         this.price = price;
-        alreadyAnswered = new ArrayList<>();
+        alreadyAnswered = new ArrayList();
     }
 
     public void step() {
@@ -58,25 +58,25 @@ public class Responder implements Stepable {
         Requester req = (Requester) stepable;
         if (!alreadyAnswered.contains(req.getId())) {
             Response res = new Response();
-            if (r.nextFloat() < location) {
+            if (r.nextFloat() <= location) {
                 res.setLocation(req.getLocation());
             } else {
-                res.setLocation(r.nextInt(Main.getSocialModel().MAX_DISTANCE) + req.getLocation());
+                res.setLocation(r.nextInt(Main.getSocialModel().getMaxDistance()) + req.getLocation());
             }
 
-            if (r.nextFloat() < price) {
+            if (r.nextFloat() <= price) {
                 res.setPrice(req.getPrice());
             } else {
-                res.setPrice(r.nextInt(Main.getSocialModel().MAX_PRICE) + req.getPrice());
+                res.setPrice(r.nextInt(Main.getSocialModel().getMaxPrice()) + req.getPrice());
             }
 
-            if (r.nextFloat() < date) {
-                res.setDate(req.getDate2());
+            if (r.nextFloat() <= date) {
+                res.setDate(req.getDateEnd());
             } else {
-                res.setDate(Date.getBiggerDate(req.getDate2()));
+                res.setDate(Date.getBiggerDate(req.getDateEnd()));
             }
 
-            if (r.nextFloat() < musicType) {
+            if (r.nextFloat() <= musicType) {
                 res.setMusicType(req.getMusicType());
             } else {
                 if (!Requester.MusicTypes.get(0).equals(req.getMusicType())) {
