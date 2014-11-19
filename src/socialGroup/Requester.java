@@ -53,11 +53,12 @@ public class Requester implements Stepable {
         responses = new ArrayList<>();
 
 
-        deltaLocation = (float) -2.0 / Main.getSocialModel().getMaxDistance();
-        yyLocation = (float) - (Main.getSocialModel().getMaxDistance() + location) * deltaLocation;
+        deltaLocation = (float) 2.0 / (-Main.getSocialModel().getMaxDistance());
+        yyLocation = (float) (-Main.getSocialModel().getMaxDistance() - 2.0 * location) / (-Main.getSocialModel().getMaxDistance());
 
-        deltaPrice = (float) -2.0 / Main.getSocialModel().getMaxPrice();
-        yyPrice = (float) - (Main.getSocialModel().getMaxPrice() + price) * deltaPrice;
+        deltaPrice = (float) 2.0 / (-Main.getSocialModel().getMaxPrice());
+        yyPrice = (float) (-Main.getSocialModel().getMaxPrice() - 2.0 * price) / (-Main.getSocialModel().getMaxPrice());
+
     }
 
     public void step() {
@@ -66,7 +67,7 @@ public class Requester implements Stepable {
             if (responses.get(i).getLocation() <= location) {
                 locationValue = 1;
             } else if (responses.get(i).getLocation() >= (location + Main.getSocialModel().getMaxDistance())) {
-                locationValue = 0;
+                locationValue = -1;
             } else {
                 locationValue = deltaLocation * responses.get(i).getLocation() + yyLocation;
             }
@@ -74,7 +75,7 @@ public class Requester implements Stepable {
             if (responses.get(i).getPrice() <= price) {
                 priceValue = 1;
             } else if (responses.get(i).getPrice() >= (price + Main.getSocialModel().getMaxDistance())) {
-                priceValue = 0;
+                priceValue = -1;
             } else {
                 priceValue = deltaPrice * responses.get(i).getPrice() + yyPrice;
             }
@@ -82,16 +83,16 @@ public class Requester implements Stepable {
             if (responses.get(i).getDate().isEarlier(dateEnd)) {
                 dateValue = 1;
             } else {
-                dateValue = 0;
+                dateValue = -1;
             }
 
             if (responses.get(i).getMusicType().equals(musicType)) {
                 musicValue = 1;
             } else {
-                musicValue = 0;
+                musicValue = -1;
             }
 
-            System.out.println("Location = "+locationValue+"\nPrice = "+priceValue+"\nDate = "+dateValue+"\nMusic = "+musicValue);
+            System.out.println("Location = " + locationValue + "\nPrice = " + priceValue + "\nDate = " + dateValue + "\nMusic = " + musicValue);
         }
     }
 
@@ -99,7 +100,7 @@ public class Requester implements Stepable {
         responses.add(res);
     }
 
-    public int getId(){
+    public int getId() {
         return id;
     }
 
