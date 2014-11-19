@@ -53,11 +53,10 @@ public class Requester implements Stepable {
         responses = new ArrayList<>();
 
 
-
-        deltaLocation = (float) -1.0 / Main.getSocialModel().getMaxDistance();
+        deltaLocation = (float) -2.0 / Main.getSocialModel().getMaxDistance();
         yyLocation = (float) - (Main.getSocialModel().getMaxDistance() + location) * deltaLocation;
 
-        deltaPrice = (float) -1.0 / Main.getSocialModel().getMaxPrice();
+        deltaPrice = (float) -2.0 / Main.getSocialModel().getMaxPrice();
         yyPrice = (float) - (Main.getSocialModel().getMaxPrice() + price) * deltaPrice;
     }
 
