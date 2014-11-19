@@ -5,6 +5,7 @@ import exceptions.WrongProbabilityValue;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,11 +22,10 @@ public class Responder implements Stepable {
     private float date;
     //Probability of answering correctly to the musicType parameter (value between 0 and 1
     private float musicType;
+    private int id;
 
-    private ArrayList<Integer> alreadyAnswered;
 
-
-    public Responder(float location, float price, float date, float musicType) throws WrongProbabilityValue {
+    public Responder(float location, float price, float date, float musicType, int id) throws WrongProbabilityValue {
         if (location < 0 || location > 1) {
             throw new WrongProbabilityValue("Wrong location probability: " + location);
         }
@@ -43,7 +43,7 @@ public class Responder implements Stepable {
         this.date = date;
         this.musicType = musicType;
         this.price = price;
-        alreadyAnswered = new ArrayList();
+        this.id = id;
     }
 
     public void step() {
@@ -56,37 +56,34 @@ public class Responder implements Stepable {
         } while (!(stepable instanceof Requester));
 
         Requester req = (Requester) stepable;
-        if (!alreadyAnswered.contains(req.getId())) {
-            Response res = new Response();
-            if (r.nextFloat() <= location) {
-                res.setLocation(req.getLocation());
-            } else {
-                res.setLocation(r.nextInt(Main.getSocialModel().getMaxDistance()) + req.getLocation());
-            }
-
-            if (r.nextFloat() <= price) {
-                res.setPrice(req.getPrice());
-            } else {
-                res.setPrice(r.nextInt(Main.getSocialModel().getMaxPrice()) + req.getPrice());
-            }
-
-            if (r.nextFloat() <= date) {
-                res.setDate(req.getDateEnd());
-            } else {
-                res.setDate(Date.getBiggerDate(req.getDateEnd()));
-            }
-
-            if (r.nextFloat() <= musicType) {
-                res.setMusicType(req.getMusicType());
-            } else {
-                if (!Requester.MusicTypes.get(0).equals(req.getMusicType())) {
-                    res.setMusicType(Requester.MusicTypes.get(0));
-                } else {
-                    res.setMusicType(Requester.MusicTypes.get(1));
-                }
-            }
-            req.addResponse(res);
-            alreadyAnswered.add(req.getId());
+        Response res = new Response();
+        if (r.nextFloat() <= location) {
+            res.setLocation(req.getLocation());
+        } else {
+            res.setLocation(r.nextInt(Main.getSocialModel().getMaxDistance()) + req.getLocation());
         }
+
+        if (r.nextFloat() <= price) {
+            res.setPrice(req.getPrice());
+        } else {
+            res.setPrice(r.nextInt(Main.getSocialModel().getMaxPrice()) + req.getPrice());
+        }
+
+        if (r.nextFloat() <= date) {
+            res.setDate(req.getDateEnd());
+        } else {
+            res.setDate(Date.getBiggerDate(req.getDateEnd()));
+        }
+
+        if (r.nextFloat() <= musicType) {
+            res.setMusicType(req.getMusicType());
+        } else {
+            if (!Requester.MusicTypes.get(0).equals(req.getMusicType())) {
+                res.setMusicType(Requester.MusicTypes.get(0));
+            } else {
+                res.setMusicType(Requester.MusicTypes.get(1));
+            }
+        }
+        req.addResponse(res);
     }
 }

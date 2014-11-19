@@ -52,7 +52,7 @@ public class SocialGroupModel extends SimpleModel {
 
         for (int i = 0; i < numberOfResponders; i++) {
             try {
-                agentList.add(new Responder(r.nextFloat(), r.nextFloat(), r.nextFloat(), r.nextFloat()));
+                agentList.add(new Responder(r.nextFloat(), r.nextFloat(), r.nextFloat(), r.nextFloat(), numberOfRequesters++));
             } catch (WrongProbabilityValue e) {
                 System.err.println(e.getMessage());
             }

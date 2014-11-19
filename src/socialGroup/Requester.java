@@ -94,6 +94,20 @@ public class Requester implements Stepable {
 
             System.out.println("Location = " + locationValue + "\nPrice = " + priceValue + "\nDate = " + dateValue + "\nMusic = " + musicValue);
         }
+
+        //FIRE
+    }
+
+    private ArrayList getResponsesFromId(int id) {
+        ArrayList<Response> res = new ArrayList<>();
+
+        for (int i = 0; i < responses.size(); i++) {
+            if (id == responses.get(i).getId()) {
+                res.add(responses.get(i));
+            }
+        }
+
+        return res;
     }
 
     public void addResponse(Response res) {

@@ -2,6 +2,7 @@ package mainPackage;
 
 import socialGroup.SocialGroupModel;
 import uchicago.src.sim.engine.SimInit;
+import util.FIRE;
 
 import java.util.HashMap;
 

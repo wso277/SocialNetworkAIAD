@@ -8,16 +8,17 @@ public class Response {
     private int price;
     private Date date;
     private String musicType;
-
+    private int id;
     public Response() {
 
     }
 
-    public Response(int location, int price, Date date, String musicType) {
+    public Response(int location, int price, Date date, String musicType, int id) {
         this.location = location;
         this.price = price;
         this.date = date;
         this.musicType = musicType;
+        this.id = id;
     }
 
     //Method to calculate FIRE Values
@@ -53,5 +54,9 @@ public class Response {
 
     public void setMusicType(String musicType) {
         this.musicType = musicType;
+    }
+
+    public int getId() {
+        return id;
     }
 }
