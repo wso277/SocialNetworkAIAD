@@ -12,7 +12,7 @@ public class FIRE {
 
     }
 
-    private float calculateOmega(int posResponse) {
+    public float calculateOmega(int posResponse) {
         return (posResponse + 1) / MAX_RESPONSES;
     }
 
@@ -24,18 +24,7 @@ public class FIRE {
         return instance;
     }
 
-    private float calculateTI(ArrayList<Float> omegas, ArrayList<Float> values) {
-        float result = 0f;
-        if (omegas.size() != values.size()) {
-            return -1;
-        }
-        for (int i = 0; i < omegas.size(); i++) {
-            result += omegas.get(i)*values.get(i);
-        }
-        return result;
-    }
-
-    private float calculateTW(ArrayList<Float> omegas, ArrayList<Float> values) {
+    public float calculateTI(ArrayList<Float> omegas, ArrayList<Float> values) {
         float result = 0f;
         if (omegas.size() != values.size()) {
             return -1;
@@ -46,31 +35,41 @@ public class FIRE {
         return result;
     }
 
-    private float calculatePN(int n) {
+    public float calculateTW(ArrayList<Float> omegas, ArrayList<Float> values) {
+        float result = 0f;
+        if (omegas.size() != values.size()) {
+            return -1;
+        }
+        for (int i = 0; i < omegas.size(); i++) {
+            result += omegas.get(i) * values.get(i);
+        }
+        return result;
+    }
+
+    public float calculatePN(int n) {
         float result;
         if (n <= m) {
-            result = (float)n/m;
+            result = (float) n / m;
         } else {
             result = 1;
         }
         return result;
     }
 
-    private float calculatePD(ArrayList<Float> omegas, ArrayList<Float> values, float ti) {
+    public float calculatePD(ArrayList<Float> omegas, ArrayList<Float> values, float ti) {
         float result = 0, res = 0;
         for (int i = 0; i < omegas.size(); i++) {
-            res += (omegas.get(i)*Math.abs(values.get(i)-ti))/2;
+            res += (omegas.get(i) * Math.abs(values.get(i) - ti)) / 2;
         }
         result = 1 - res;
         return result;
     }
 
-    private float calculatePTI(float pn, float pd) {
-        float pti = pn*pd;
-        return pti;
+    public float calculatePTI(float pn, float pd) {
+        return (float) pn * pd;
     }
 
-    private float calculateRT(ArrayList<Rule> rules) {
+    public float calculateRT(ArrayList<Rule> rules) {
         float result = 0, res1 = 0, res2 = 0;
         for (int i = 0; i < rules.size(); i++) {
             res1 += rules.get(i).getProb() * rules.get(i).getCert();
@@ -80,4 +79,30 @@ public class FIRE {
         return result;
     }
 
+    public float calculatePTW(float pn, float pd) {
+        return (float) pn * pd;
+    }
+
+    public float calculateCR(ArrayList<Float> ratings) {
+        float result = 0, omega = 0;
+
+        for (int i = 0; i < ratings.size(); i++) {
+            omega = calculateOmega(i + 1);
+            result += omega * ratings.get(i);
+        }
+
+        return result;
+    }
+
+    public float calculatePTCR(float pn, float pd) {
+        return (float) pn * pd;
+    }
+
+    public float finalTrust(float pti, float ptr, float ptw, float ptcr) {
+        return (float) ((0.8*pti+ 0.2*ptr + 0.5*ptw + 0.2*ptcr)/(0.8+0.2+0.5+0.2));
+    }
+
+    public int getMAX_RESPONSES() {
+        return MAX_RESPONSES;
+    }
 }

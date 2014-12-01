@@ -5,6 +5,7 @@ import exceptions.WrongDateException;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
+import util.FIRE;
 import util.Rule;
 
 import java.util.ArrayList;
@@ -96,11 +97,21 @@ public class Requester implements Stepable {
         ArrayList<Float> musicRatings = new ArrayList<>();
 
         Iterator it = responses.entrySet().iterator();
+
+        float interactionTrust, roleTrust, witnessTrust, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust;
+
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry) it.next();
             ArrayList<Response> res = (ArrayList) pairs.getValue();
 
+
             for (int i = 0; i < res.size(); i++) {
+
+                crLocationTrust = FIRE.getInstance().calculateCR(resp.get(res.get(i).getId()).getLocationRatings());
+                crPriceTrust = FIRE.getInstance().calculateCR(resp.get(res.get(i).getId()).getPriceRatings());
+                crDateTrust = FIRE.getInstance().calculateCR(resp.get(res.get(i).getId()).getDateRatings());
+                crMusicTrust = FIRE.getInstance().calculateCR(resp.get(res.get(i).getId()).getMusicTypeRatings());
+
                 if (res.get(i).getLocation() <= location) {
                     locationValue = 1;
                 } else if (res.get(i).getLocation() >= (location + Main.getSocialModel().getMaxDistance())) {
@@ -143,6 +154,11 @@ public class Requester implements Stepable {
 
                 ratings.put(res.get(i).getId(), rate);
 
+                resp.get(res.get(i).getId()).addLocationRating(locationValue);
+                resp.get(res.get(i).getId()).addPriceRating(priceValue);
+                resp.get(res.get(i).getId()).addDateRating(dateValue);
+                resp.get(res.get(i).getId()).addMusicTypeRating(musicValue);
+
 
             }
 
@@ -163,9 +179,6 @@ public class Requester implements Stepable {
             musicRatings.clear();
             it.remove(); // avoids a ConcurrentModificationException
         }
-
-
-        //FIRE
     }
 
     private ArrayList getResponsesFromId(int id) {

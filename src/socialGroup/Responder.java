@@ -5,8 +5,10 @@ import exceptions.WrongProbabilityValue;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
 import util.Date;
+import util.FIRE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -23,6 +25,10 @@ public class Responder implements Stepable {
     //Probability of answering correctly to the musicType parameter (value between 0 and 1
     private float musicType;
     private int id;
+    private ArrayList<Float> locationRatings;
+    private ArrayList<Float> priceRatings;
+    private ArrayList<Float> dateRatings;
+    private ArrayList<Float> musicTypeRatings;
 
 
     public Responder(float location, float price, float date, float musicType, int id) throws WrongProbabilityValue {
@@ -44,6 +50,10 @@ public class Responder implements Stepable {
         this.musicType = musicType;
         this.price = price;
         this.id = id;
+        locationRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
+        priceRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
+        dateRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
+        musicTypeRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
     }
 
     public void step() {
@@ -86,5 +96,48 @@ public class Responder implements Stepable {
         }
         res.setId(id);
         req.addResponse(id, res);
+    }
+
+    public void isHigher(ArrayList<Float> array, float val) {
+        Collections.sort(array);
+        if (array.get(0) < val) {
+            array.set(0, val);
+        }
+    }
+
+    public void addLocationRating(float val) {
+        this.isHigher(locationRatings,val);
+    }
+
+    public void addPriceRating(float val) {
+        this.isHigher(priceRatings, val);
+    }
+
+    public void addDateRating(float val) {
+        this.isHigher(dateRatings, val);
+    }
+
+    public void addMusicTypeRating(float val) {
+        this.isHigher(musicTypeRatings, val);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public ArrayList<Float> getLocationRatings() {
+        return locationRatings;
+    }
+
+    public ArrayList<Float> getPriceRatings() {
+        return priceRatings;
+    }
+
+    public ArrayList<Float> getDateRatings() {
+        return dateRatings;
+    }
+
+    public ArrayList<Float> getMusicTypeRatings() {
+        return musicTypeRatings;
     }
 }
