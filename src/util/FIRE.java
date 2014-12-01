@@ -6,17 +6,14 @@ public class FIRE {
 
     private static FIRE instance = null;
     private final int m = 200;
-
-    private float omega;
-
+    private final int MAX_RESPONSES = 10;
 
     public FIRE() {
 
     }
 
-    private float calculateOmega(int x, float y, int nResponses) {
-        omega = (nResponses * y - x) / nResponses;
-        return omega;
+    private float calculateOmega(int posResponse) {
+        return (posResponse + 1) / MAX_RESPONSES;
     }
 
     public static FIRE getInstance() {
@@ -34,6 +31,17 @@ public class FIRE {
         }
         for (int i = 0; i < omegas.size(); i++) {
             result += omegas.get(i)*values.get(i);
+        }
+        return result;
+    }
+
+    private float calculateTW(ArrayList<Float> omegas, ArrayList<Float> values) {
+        float result = 0f;
+        if (omegas.size() != values.size()) {
+            return -1;
+        }
+        for (int i = 0; i < omegas.size(); i++) {
+            result += omegas.get(i) * values.get(i);
         }
         return result;
     }
@@ -61,4 +69,15 @@ public class FIRE {
         float pti = pn*pd;
         return pti;
     }
+
+    private float calculateRT(ArrayList<Rule> rules) {
+        float result = 0, res1 = 0, res2 = 0;
+        for (int i = 0; i < rules.size(); i++) {
+            res1 += rules.get(i).getProb() * rules.get(i).getCert();
+            res2 += rules.get(i).getProb();
+        }
+        result = res1 / res2;
+        return result;
+    }
+
 }
