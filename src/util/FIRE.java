@@ -17,12 +17,13 @@ public class FIRE {
     }
 
     public ArrayList<Float> calculateOmegas(ArrayList<Float> values) {
-        ArrayList<Float> result = new ArrayList<Float>();
+        ArrayList<Float> result = new ArrayList<>();
 
         for (int i = 0; i < values.size(); i++) {
             result.add(values.get(i) * calculateOmega(i));
         }
 
+        //System.out.println("OMEGAS TOTAL: " +);
         return result;
     }
 

@@ -50,10 +50,10 @@ public class Responder implements Stepable {
         this.musicType = musicType;
         this.price = price;
         this.id = id;
-        locationRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
-        priceRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
-        dateRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
-        musicTypeRatings = new ArrayList<>(FIRE.getInstance().getMAX_RESPONSES());
+        locationRatings = new ArrayList<>(Collections.nCopies(FIRE.getInstance().getMAX_RESPONSES(), 0f));
+        priceRatings = new ArrayList<>(Collections.nCopies(FIRE.getInstance().getMAX_RESPONSES(), 0f));
+        dateRatings = new ArrayList<>(Collections.nCopies(FIRE.getInstance().getMAX_RESPONSES(), 0f));
+        musicTypeRatings = new ArrayList<>(Collections.nCopies(FIRE.getInstance().getMAX_RESPONSES(), 0f));
     }
 
     public void step() {
@@ -103,10 +103,11 @@ public class Responder implements Stepable {
         if (array.get(0) < val) {
             array.set(0, val);
         }
+
     }
 
     public void addLocationRating(float val) {
-        this.isHigher(locationRatings,val);
+        this.isHigher(locationRatings, val);
     }
 
     public void addPriceRating(float val) {
