@@ -111,6 +111,7 @@ public class Responder implements Stepable {
     }
 
     public void addPriceRating(float val) {
+
         this.isHigher(priceRatings, val);
     }
 

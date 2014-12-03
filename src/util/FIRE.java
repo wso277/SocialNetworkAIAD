@@ -1,6 +1,10 @@
 package util;
 
+import com.sun.deploy.util.ArrayUtil;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class FIRE {
 
@@ -12,18 +16,44 @@ public class FIRE {
 
     }
 
-    public float calculateOmega(int posResponse) {
-        return (posResponse + 1) / MAX_RESPONSES;
-    }
-
     public ArrayList<Float> calculateOmegas(ArrayList<Float> values) {
-        ArrayList<Float> result = new ArrayList<>();
+        float step = 1.0f / values.size();
+        float baseVal = step;
 
-        for (int i = 0; i < values.size(); i++) {
-            result.add(values.get(i) * calculateOmega(i));
+        ArrayList<Float> result = new ArrayList<>();
+        ArrayList<Float> resultAux = new ArrayList<>();
+        if (values.size() == 1) {
+            result.add(1f);
+        } else {
+
+            if (values.size() % 2 == 0) {
+                for (int i = 0; i < values.size() / 2; i++) {
+                    result.add(baseVal * step);
+                    step += baseVal;
+                }
+                step = 2f - baseVal;
+                for (int i = values.size(); i > values.size() / 2; i--) {
+                    resultAux.add(baseVal * step);
+                    step -= baseVal;
+                }
+            } else {
+                for (int i = 0; i < Math.ceil(values.size() / 2); i++) {
+                    result.add(baseVal * step);
+                    step += baseVal;
+                }
+                step = 2f - baseVal;
+                result.add(1f);
+                for (int i = values.size(); i > Math.ceil(values.size() / 2); i--) {
+                    resultAux.add(baseVal * step);
+                    step -= baseVal;
+                }
+            }
+
+            Collections.reverse(resultAux);
+            result.addAll(resultAux);
+            Collections.sort(result);
         }
 
-        //System.out.println("OMEGAS TOTAL: " +);
         return result;
     }
 
@@ -95,11 +125,11 @@ public class FIRE {
     }
 
     public float calculateCRT(ArrayList<Float> ratings) {
-        float result = 0, omega = 0;
+        float result = 0;
+        ArrayList<Float> omegas = calculateOmegas(ratings);
 
         for (int i = 0; i < ratings.size(); i++) {
-            omega = calculateOmega(i + 1);
-            result += omega * ratings.get(i);
+            result += omegas.get(i) * ratings.get(i);
         }
 
         return result;
