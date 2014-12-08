@@ -118,6 +118,11 @@ public class Requester implements Stepable {
                 ArrayList<Float> respRatings = ratings.get(resp.getId());
                 calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
 
+                locationRatings.clear();
+                priceRatings.clear();
+                dateRatings.clear();
+                musicRatings.clear();
+                getSeparateRatings(locationRatings, priceRatings, dateRatings, musicRatings, respRatings);
                 calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
             }
 
@@ -171,6 +176,7 @@ public class Requester implements Stepable {
             steps.add(i);
         }
 
+        System.out.println("LOCATION " + locationR.size());
         float locationBeta = BETA.getInstance().calculateTrust(locationR, locationS, locationRatings.size(), steps);
         float priceBeta = BETA.getInstance().calculateTrust(priceR, priceS, priceRatings.size(), steps);
         float dateBeta = BETA.getInstance().calculateTrust(dateR, dateS, dateRatings.size(), steps);
@@ -195,12 +201,8 @@ public class Requester implements Stepable {
         float witnessPriceTrust;
         float witnessDateTrust;
         float witnessMusicTrust;
-        for (int j = 0; j < respRatings.size(); j++) {
-            locationRatings.add(respRatings.get(j++));
-            priceRatings.add(respRatings.get(j++));
-            dateRatings.add(respRatings.get(j++));
-            musicRatings.add(respRatings.get(j));
-        }
+
+        getSeparateRatings(locationRatings, priceRatings, dateRatings, musicRatings, respRatings);
 
         /*System.out.println("---------------------------------------");
         System.out.println("LOCATIONRATINGS: " + locationRatings);
@@ -234,6 +236,10 @@ public class Requester implements Stepable {
             add(RULES.get(3));
         }});
 
+        locationRatings.clear();
+        priceRatings.clear();
+        dateRatings.clear();
+        musicRatings.clear();
         if (position != 0) {
             ArrayList<Float> rates = reqs.get(position - 1).getRatings((Integer) pairs.getKey());
             if (rates != null) {
@@ -276,6 +282,15 @@ public class Requester implements Stepable {
                 System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
         System.out.println("FINAL TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
         System.out.println("---------------------------------------");
+    }
+
+    private void getSeparateRatings(ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, ArrayList<Float> respRatings) {
+        for (int j = 0; j < respRatings.size(); j++) {
+            locationRatings.add(respRatings.get(j++));
+            priceRatings.add(respRatings.get(j++));
+            dateRatings.add(respRatings.get(j++));
+            musicRatings.add(respRatings.get(j));
+        }
     }
 
     private void calculateRatings(ArrayList<Response> res, Responder resp, int i) {
