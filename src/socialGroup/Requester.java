@@ -49,8 +49,7 @@ public class Requester implements Stepable {
     private float locationValue, priceValue, dateValue, musicValue, deltaLocation, deltaPrice, yyLocation, yyPrice;
     private HashMap<Integer, ArrayList<Float>> ratings = new HashMap<>();
 
-    public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws
-            WrongDateException {
+    public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws WrongDateException {
         this.location = location;
         this.price = price;
         if (!date1.isEarlier(date2)) {
@@ -61,7 +60,6 @@ public class Requester implements Stepable {
         this.musicType = musicType;
         this.id = id;
         responses = new HashMap<>();
-
 
         deltaLocation = (float) 2.0 / (-Main.getSocialModel().getMaxDistance());
         yyLocation = (float) (-Main.getSocialModel().getMaxDistance() - 2.0 * location) / (-Main.getSocialModel().getMaxDistance());
@@ -79,19 +77,7 @@ public class Requester implements Stepable {
         ArrayList<Responder> resps = new ArrayList<>();
         int position = 0;
 
-        for (int i = 0; i < Main.getSocialModel().getAgentList().size(); i++) {
-            Stepable step = (Stepable) Main.getSocialModel().getAgentList().get(i);
-
-            if (step instanceof Requester) {
-                if (((Requester) step).getId() == id) {
-                    position = reqs.size();
-                }
-                reqs.add((Requester) step);
-            } else {
-                resps.add((Responder) step);
-            }
-        }
-
+        position = separateAgents(reqs, resps, position);
 
         ArrayList<Float> locationRatings = new ArrayList<>();
         ArrayList<Float> priceRatings = new ArrayList<>();
@@ -100,9 +86,6 @@ public class Requester implements Stepable {
 
         Iterator it = responses.entrySet().iterator();
 
-        float interactionLocalTrust = 0, interactionDateTrust = 0, interactionMusicTrust = 0, interactionPriceTrust = 0;
-        float roleLocalTrust = 0, roleDateTrust = 0, roleMusicTrust = 0, rolePriceTrust = 0;
-        float witnessLocalTrust = 0, witnessDateTrust = 0, witnessMusicTrust = 0, witnessPriceTrust = 0;
         float crLocationTrust = 0, crPriceTrust = 0, crDateTrust = 0, crMusicTrust = 0;
 
         while (it.hasNext()) {
@@ -117,152 +100,14 @@ public class Requester implements Stepable {
                 crDateTrust = FIRE.getInstance().calculateCRT(resp.getDateRatings());
                 crMusicTrust = FIRE.getInstance().calculateCRT(resp.getMusicTypeRatings());
 
-                if (res.get(i).getLocation() <= location) {
-                    locationValue = 1;
-                } else if (res.get(i).getLocation() >= (location + Main.getSocialModel().getMaxDistance())) {
-                    locationValue = -1;
-                } else {
-                    locationValue = deltaLocation * res.get(i).getLocation() + yyLocation;
-                }
-
-                if (res.get(i).getPrice() <= price) {
-                    priceValue = 1;
-                } else if (res.get(i).getPrice() >= (price + Main.getSocialModel().getMaxDistance())) {
-                    priceValue = -1;
-                } else {
-                    priceValue = deltaPrice * res.get(i).getPrice() + yyPrice;
-                }
-
-                if (res.get(i).getDate().isEarlier(dateEnd)) {
-                    dateValue = 1;
-                } else {
-                    dateValue = -1;
-                }
-
-                if (res.get(i).getMusicType().equals(musicType)) {
-                    musicValue = 1;
-                } else {
-                    musicValue = -1;
-                }
-
-                /*System.out.println("---------------------------------------");
-                System.out.println("LOCATION: "  + locationValue);
-                System.out.println("PRICE: "  + priceValue);
-                System.out.println("DATE: "  + dateValue);
-                System.out.println("MUSIC: "  + musicValue);
-                System.out.println("---------------------------------------");*/
-
-
-                ArrayList<Float> rate = getRatings(res.get(i).getId());
-                if (rate == null) {
-                    rate = new ArrayList<>();
-                }
-
-                rate.add(locationValue);
-                rate.add(priceValue);
-                rate.add(dateValue);
-                rate.add(musicValue);
-
-                System.out.println("---------------------------------------");
-                System.out.println("ID: " + res.get(i).getId());
-                System.out.println("RATINGS: " + rate);
-                System.out.println("---------------------------------------");
-
-
-                ratings.put(res.get(i).getId(), rate);
-
-                resp.addLocationRating(locationValue);
-                resp.addPriceRating(priceValue);
-                resp.addDateRating(dateValue);
-                resp.addMusicTypeRating(musicValue);
+                calculateRatings(res, resp, i);
                 nResponses = i;
             }
 
             if (nResponses >= 0) {
 
                 ArrayList<Float> respRatings = ratings.get(resp.getId());
-                for (int j = 0; j < respRatings.size(); j++) {
-                    locationRatings.add(respRatings.get(j++));
-                    priceRatings.add(respRatings.get(j++));
-                    dateRatings.add(respRatings.get(j++));
-                    musicRatings.add(respRatings.get(j));
-                }
-
-                System.out.println("---------------------------------------");
-                System.out.println("LOCATIONRATINGS: " + locationRatings);
-                System.out.println("PRICERATINGS: " + priceRatings);
-                System.out.println("DATERATINGS: " + dateRatings);
-                System.out.println("MUSICRATINGS: " + musicRatings);
-                System.out.println("---------------------------------------");
-
-
-                interactionLocalTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings);
-                interactionPriceTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(priceRatings), priceRatings);
-                interactionDateTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(dateRatings), dateRatings);
-                interactionMusicTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(musicRatings), musicRatings);
-
-                System.out.println("---------------------------------------");
-                System.out.println("LOCATIONTRUST: " + interactionLocalTrust);
-                System.out.println("PRICETRUST: " + interactionPriceTrust);
-                System.out.println("DATETRUST: " + interactionDateTrust);
-                System.out.println("MUSICTRUST: " + interactionMusicTrust);
-                System.out.println("---------------------------------------");
-
-                roleLocalTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
-                    add(RULES.get(0));
-                }});
-                rolePriceTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
-                    add(RULES.get(1));
-                }});
-                roleDateTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
-                    add(RULES.get(2));
-                }});
-                roleMusicTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
-                    add(RULES.get(3));
-                }});
-
-                if (position != 0) {
-                    ArrayList<Float> rates = reqs.get(position - 1).getRatings((Integer) pairs.getKey());
-                    if (rates != null) {
-
-                        for (int j = 0; j < rates.size(); j++) {
-                            locationRatings.add(rates.get(j++));
-                            priceRatings.add(rates.get(j++));
-                            dateRatings.add(rates.get(j++));
-                            musicRatings.add(rates.get(j));
-                        }
-                    }
-                }
-
-                witnessLocalTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings);
-                witnessPriceTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), priceRatings);
-                witnessDateTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), dateRatings);
-                witnessMusicTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), musicRatings);
-
-                /*System.out.println("---------------------------------------");
-                System.out.println("INTERACTION : " + interactionLocalTrust);
-                System.out.println("ROLE: " + roleLocalTrust);
-                System.out.println("WITNESS : " + witnessLocalTrust);
-                System.out.println("CR : " + crLocationTrust);
-                System.out.println("---------------------------------------");*/
-
-                float localFinalTrust = FIRE.getInstance().finalTrust(interactionLocalTrust, roleLocalTrust, witnessLocalTrust, crLocationTrust);
-
-                float priceFinalTrust = FIRE.getInstance().finalTrust(interactionPriceTrust, rolePriceTrust, witnessPriceTrust, crPriceTrust);
-                float dateFinalTrust = FIRE.getInstance().finalTrust(interactionDateTrust, roleDateTrust, witnessDateTrust, crDateTrust);
-
-                float musicFinalTrust = FIRE.getInstance().finalTrust(interactionMusicTrust, roleMusicTrust, witnessMusicTrust, crMusicTrust);
-
-                float finalTrust = (0.2f * localFinalTrust + 0.4f * priceFinalTrust + 0.6f * dateFinalTrust + 0.8f * musicFinalTrust) / (2.0f);
-
-
-               /* System.out.println("TRUST-------------------");
-                System.out.println("LOCAL TRUST: " + localFinalTrust);
-                System.out.println("PRICE TRUST: " + priceFinalTrust);
-                System.out.println("DATE TRUST: " + dateFinalTrust);
-                System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
-                System.out.println("FINAL TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
-                System.out.println("---------------------------------------");
+                calculateTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
 
             }
 
@@ -273,6 +118,177 @@ public class Requester implements Stepable {
         }
 
         //it.remove(); // avoids a ConcurrentModificationException
+    }
+
+    private void calculateTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings) {
+        float interactionLocalTrust;
+        float interactionPriceTrust;
+        float interactionDateTrust;
+        float interactionMusicTrust;
+        float roleLocalTrust;
+        float rolePriceTrust;
+        float roleDateTrust;
+        float roleMusicTrust;
+        float witnessLocalTrust;
+        float witnessPriceTrust;
+        float witnessDateTrust;
+        float witnessMusicTrust;
+        for (int j = 0; j < respRatings.size(); j++) {
+            locationRatings.add(respRatings.get(j++));
+            priceRatings.add(respRatings.get(j++));
+            dateRatings.add(respRatings.get(j++));
+            musicRatings.add(respRatings.get(j));
+        }
+
+        /*System.out.println("---------------------------------------");
+        System.out.println("LOCATIONRATINGS: " + locationRatings);
+        System.out.println("PRICERATINGS: " + priceRatings);
+        System.out.println("DATERATINGS: " + dateRatings);
+        System.out.println("MUSICRATINGS: " + musicRatings);
+        System.out.println("---------------------------------------");*/
+
+        interactionLocalTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings);
+        interactionPriceTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(priceRatings), priceRatings);
+        interactionDateTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(dateRatings), dateRatings);
+        interactionMusicTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(musicRatings), musicRatings);
+
+        /*System.out.println("---------------------------------------");
+        System.out.println("LOCATIONTRUST: " + interactionLocalTrust);
+        System.out.println("PRICETRUST: " + interactionPriceTrust);
+        System.out.println("DATETRUST: " + interactionDateTrust);
+        System.out.println("MUSICTRUST: " + interactionMusicTrust);
+        System.out.println("---------------------------------------");*/
+
+        roleLocalTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
+            add(RULES.get(0));
+        }});
+        rolePriceTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
+            add(RULES.get(1));
+        }});
+        roleDateTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
+            add(RULES.get(2));
+        }});
+        roleMusicTrust = FIRE.getInstance().calculateRT(new ArrayList<Rule>() {{
+            add(RULES.get(3));
+        }});
+
+        if (position != 0) {
+            ArrayList<Float> rates = reqs.get(position - 1).getRatings((Integer) pairs.getKey());
+            if (rates != null) {
+
+                for (int j = 0; j < rates.size(); j++) {
+                    locationRatings.add(rates.get(j++));
+                    priceRatings.add(rates.get(j++));
+                    dateRatings.add(rates.get(j++));
+                    musicRatings.add(rates.get(j));
+                }
+            }
+        }
+
+        witnessLocalTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings);
+        witnessPriceTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), priceRatings);
+        witnessDateTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), dateRatings);
+        witnessMusicTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), musicRatings);
+
+                /*System.out.println("---------------------------------------");
+                System.out.println("INTERACTION : " + interactionLocalTrust);
+                System.out.println("ROLE: " + roleLocalTrust);
+                System.out.println("WITNESS : " + witnessLocalTrust);
+                System.out.println("CR : " + crLocationTrust);
+                System.out.println("---------------------------------------");*/
+
+        float localFinalTrust = FIRE.getInstance().finalTrust(interactionLocalTrust, roleLocalTrust, witnessLocalTrust, crLocationTrust);
+
+        float priceFinalTrust = FIRE.getInstance().finalTrust(interactionPriceTrust, rolePriceTrust, witnessPriceTrust, crPriceTrust);
+        float dateFinalTrust = FIRE.getInstance().finalTrust(interactionDateTrust, roleDateTrust, witnessDateTrust, crDateTrust);
+
+        float musicFinalTrust = FIRE.getInstance().finalTrust(interactionMusicTrust, roleMusicTrust, witnessMusicTrust, crMusicTrust);
+
+        float finalTrust = (0.2f * localFinalTrust + 0.4f * priceFinalTrust + 0.6f * dateFinalTrust + 0.8f * musicFinalTrust) / (2.0f);
+
+
+               /* System.out.println("TRUST-------------------");
+                System.out.println("LOCAL TRUST: " + localFinalTrust);
+                System.out.println("PRICE TRUST: " + priceFinalTrust);
+                System.out.println("DATE TRUST: " + dateFinalTrust);
+                System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
+        System.out.println("FINAL TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
+        System.out.println("---------------------------------------");
+    }
+
+    private void calculateRatings(ArrayList<Response> res, Responder resp, int i) {
+        if (res.get(i).getLocation() <= location) {
+            locationValue = 1;
+        } else if (res.get(i).getLocation() >= (location + Main.getSocialModel().getMaxDistance())) {
+            locationValue = -1;
+        } else {
+            locationValue = deltaLocation * res.get(i).getLocation() + yyLocation;
+        }
+
+        if (res.get(i).getPrice() <= price) {
+            priceValue = 1;
+        } else if (res.get(i).getPrice() >= (price + Main.getSocialModel().getMaxDistance())) {
+            priceValue = -1;
+        } else {
+            priceValue = deltaPrice * res.get(i).getPrice() + yyPrice;
+        }
+
+        if (res.get(i).getDate().isEarlier(dateEnd)) {
+            dateValue = 1;
+        } else {
+            dateValue = -1;
+        }
+
+        if (res.get(i).getMusicType().equals(musicType)) {
+            musicValue = 1;
+        } else {
+            musicValue = -1;
+        }
+
+                /*System.out.println("---------------------------------------");
+                System.out.println("LOCATION: "  + locationValue);
+                System.out.println("PRICE: "  + priceValue);
+                System.out.println("DATE: "  + dateValue);
+                System.out.println("MUSIC: "  + musicValue);
+                System.out.println("---------------------------------------");*/
+
+        ArrayList<Float> rate = getRatings(res.get(i).getId());
+        if (rate == null) {
+            rate = new ArrayList<>();
+        }
+
+        rate.add(locationValue);
+        rate.add(priceValue);
+        rate.add(dateValue);
+        rate.add(musicValue);
+
+        System.out.println("---------------------------------------");
+        System.out.println("ID: " + res.get(i).getId());
+        System.out.println("RATINGS: " + rate);
+        System.out.println("---------------------------------------");
+
+        ratings.put(res.get(i).getId(), rate);
+
+        resp.addLocationRating(locationValue);
+        resp.addPriceRating(priceValue);
+        resp.addDateRating(dateValue);
+        resp.addMusicTypeRating(musicValue);
+    }
+
+    private int separateAgents(ArrayList<Requester> reqs, ArrayList<Responder> resps, int position) {
+        for (int i = 0; i < Main.getSocialModel().getAgentList().size(); i++) {
+            Stepable step = (Stepable) Main.getSocialModel().getAgentList().get(i);
+
+            if (step instanceof Requester) {
+                if (((Requester) step).getId() == id) {
+                    position = reqs.size();
+                }
+                reqs.add((Requester) step);
+            } else {
+                resps.add((Responder) step);
+            }
+        }
+        return position;
     }
 
     private ArrayList getResponsesFromId(int id) {

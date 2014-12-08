@@ -21,7 +21,6 @@ public class Response {
         this.id = id;
     }
 
-    //Method to calculate FIRE Values
 
 
     public int getLocation() {
