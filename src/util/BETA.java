@@ -19,16 +19,12 @@ public class BETA {
         return instance;
     }
 
-
-    private ArrayList<Float> calculateRS (float rating) {
-        ArrayList<Float> result = new ArrayList<Float>();
+    public void calculateRS(float rating, ArrayList<Float> rList, ArrayList<Float> sList) {
 
         float r = (1 - rating) / 2.0f;
         float s = (1 + rating) / 2.0f;
-        result.add(r);
-        result.add(s);
-
-        return result;
+        rList.add(r);
+        sList.add(s);
     }
 
     private float weightedSum(ArrayList<Float> values, int currentStep, ArrayList<Integer> steps) {
@@ -41,7 +37,7 @@ public class BETA {
         return result;
     }
 
-    private float calculateTrust (ArrayList<Float> rValues, ArrayList<Float> sValues, int currentStep, ArrayList<Integer> steps) {
+    public float calculateTrust(ArrayList<Float> rValues, ArrayList<Float> sValues, int currentStep, ArrayList<Integer> steps) {
         float result = 0;
 
         float rSum = weightedSum(rValues, currentStep, steps);

@@ -1,9 +1,9 @@
 package socialGroup;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.XPath;
 import exceptions.WrongDateException;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
+import util.BETA;
 import util.Date;
 import util.FIRE;
 import util.Rule;
@@ -107,8 +107,9 @@ public class Requester implements Stepable {
             if (nResponses >= 0) {
 
                 ArrayList<Float> respRatings = ratings.get(resp.getId());
-                calculateTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
+                calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
 
+                calculateBetaTrust(locationRatings, priceRatings, dateRatings, musicRatings);
             }
 
             locationRatings.clear();
@@ -120,7 +121,33 @@ public class Requester implements Stepable {
         //it.remove(); // avoids a ConcurrentModificationException
     }
 
-    private void calculateTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings) {
+    private void calculateBetaTrust(ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings) {
+
+        ArrayList<Float> rLocation = new ArrayList<>(), rPrice = new ArrayList<>(), rDate = new ArrayList<>(), rMusic = new ArrayList<>();
+        ArrayList<Float> sLocation = new ArrayList<>(), sPrice = new ArrayList<>(), sDate = new ArrayList<>(), sMusic = new ArrayList<>();
+
+        BETA.getInstance().calculateRS(locationRatings.get(locationRatings.size() - 1), rLocation, sLocation);
+        BETA.getInstance().calculateRS(priceRatings.get(priceRatings.size() - 1), rPrice, sPrice);
+        BETA.getInstance().calculateRS(dateRatings.get(dateRatings.size() - 1), rDate, sDate);
+        BETA.getInstance().calculateRS(musicRatings.get(musicRatings.size() - 1), rMusic, sMusic);
+
+        ArrayList<Integer> steps = new ArrayList<>();
+        for (int i = 0; i < locationRatings.size(); i++) {
+            steps.add(i);
+        }
+
+        float locationBeta = BETA.getInstance().calculateTrust(rLocation, sLocation, locationRatings.size(), steps);
+        float priceBeta = BETA.getInstance().calculateTrust(rPrice, sPrice, priceRatings.size(), steps);
+        float dateBeta = BETA.getInstance().calculateTrust(rDate, sDate, dateRatings.size(), steps);
+        float musicBeta = BETA.getInstance().calculateTrust(rMusic, sMusic, musicRatings.size(), steps);
+
+        float finalBetaTrust = (0.2f * locationBeta + 0.4f * priceBeta + 0.6f * dateBeta + 0.8f * musicBeta) / (2.0f);
+
+        System.out.println("FINAL BETA TRUST: " + finalBetaTrust);
+
+    }
+
+    private void calculateFireTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings) {
         float interactionLocalTrust;
         float interactionPriceTrust;
         float interactionDateTrust;
@@ -262,10 +289,10 @@ public class Requester implements Stepable {
         rate.add(dateValue);
         rate.add(musicValue);
 
-        System.out.println("---------------------------------------");
+        /*System.out.println("---------------------------------------");
         System.out.println("ID: " + res.get(i).getId());
         System.out.println("RATINGS: " + rate);
-        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");*/
 
         ratings.put(res.get(i).getId(), rate);
 
