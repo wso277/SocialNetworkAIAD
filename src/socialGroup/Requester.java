@@ -48,7 +48,7 @@ public class Requester implements Stepable {
     private HashMap<Integer, ArrayList<Response>> responses;
     private float locationValue, priceValue, dateValue, musicValue, deltaLocation, deltaPrice, yyLocation, yyPrice;
     private HashMap<Integer, ArrayList<Float>> ratings = new HashMap<>();
-
+    private HashMap<Integer, ArrayList<Float>> rLocation, rPrice, rDate, rMusic, sLocation, sPrice, sDate, sMusic;
     public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws WrongDateException {
         this.location = location;
         this.price = price;
@@ -66,6 +66,15 @@ public class Requester implements Stepable {
 
         deltaPrice = (float) 2.0 / (-Main.getSocialModel().getMaxPrice());
         yyPrice = (float) (-Main.getSocialModel().getMaxPrice() - 2.0 * price) / (-Main.getSocialModel().getMaxPrice());
+
+        rLocation = new HashMap<>();
+        rPrice = new HashMap<>();
+        rDate = new HashMap<>();
+        rMusic = new HashMap<>();
+        sLocation = new HashMap<>();
+        sPrice = new HashMap<>();
+        sDate = new HashMap<>();
+        sMusic = new HashMap<>();
 
     }
 
@@ -109,7 +118,7 @@ public class Requester implements Stepable {
                 ArrayList<Float> respRatings = ratings.get(resp.getId());
                 calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
 
-                calculateBetaTrust(locationRatings, priceRatings, dateRatings, musicRatings);
+                calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
             }
 
             locationRatings.clear();
@@ -121,25 +130,51 @@ public class Requester implements Stepable {
         //it.remove(); // avoids a ConcurrentModificationException
     }
 
-    private void calculateBetaTrust(ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings) {
+    private void calculateBetaTrust(int id, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings) {
+        ArrayList<Float> locationR, priceR, dateR, musicR, locationS, priceS, dateS, musicS;
+        locationR = rLocation.get(id);
+        priceR = rPrice.get(id);
+        dateR = rDate.get(id);
+        musicR = rMusic.get(id);
+        locationS = sLocation.get(id);
+        priceS = sPrice.get(id);
+        dateS = sDate.get(id);
+        musicS = sMusic.get(id);
 
-        ArrayList<Float> rLocation = new ArrayList<>(), rPrice = new ArrayList<>(), rDate = new ArrayList<>(), rMusic = new ArrayList<>();
-        ArrayList<Float> sLocation = new ArrayList<>(), sPrice = new ArrayList<>(), sDate = new ArrayList<>(), sMusic = new ArrayList<>();
+        if (locationR == null) {
+            locationR = new ArrayList<>();
+            priceR = new ArrayList<>();
+            dateR = new ArrayList<>();
+            musicR = new ArrayList<>();
+            locationS = new ArrayList<>();
+            priceS = new ArrayList<>();
+            dateS = new ArrayList<>();
+            musicS = new ArrayList<>();
+        }
 
-        BETA.getInstance().calculateRS(locationRatings.get(locationRatings.size() - 1), rLocation, sLocation);
-        BETA.getInstance().calculateRS(priceRatings.get(priceRatings.size() - 1), rPrice, sPrice);
-        BETA.getInstance().calculateRS(dateRatings.get(dateRatings.size() - 1), rDate, sDate);
-        BETA.getInstance().calculateRS(musicRatings.get(musicRatings.size() - 1), rMusic, sMusic);
+        BETA.getInstance().calculateRS(locationRatings.get(locationRatings.size() - 1), locationR, locationS);
+        BETA.getInstance().calculateRS(priceRatings.get(priceRatings.size() - 1), priceR, priceS);
+        BETA.getInstance().calculateRS(dateRatings.get(dateRatings.size() - 1), dateR, dateS);
+        BETA.getInstance().calculateRS(musicRatings.get(musicRatings.size() - 1), musicR, musicS);
+
+        rLocation.put(id, locationR);
+        rLocation.put(id, priceR);
+        rLocation.put(id, dateR);
+        rLocation.put(id, musicR);
+        rLocation.put(id, locationS);
+        rLocation.put(id, priceS);
+        rLocation.put(id, dateS);
+        rLocation.put(id, musicS);
 
         ArrayList<Integer> steps = new ArrayList<>();
         for (int i = 0; i < locationRatings.size(); i++) {
             steps.add(i);
         }
 
-        float locationBeta = BETA.getInstance().calculateTrust(rLocation, sLocation, locationRatings.size(), steps);
-        float priceBeta = BETA.getInstance().calculateTrust(rPrice, sPrice, priceRatings.size(), steps);
-        float dateBeta = BETA.getInstance().calculateTrust(rDate, sDate, dateRatings.size(), steps);
-        float musicBeta = BETA.getInstance().calculateTrust(rMusic, sMusic, musicRatings.size(), steps);
+        float locationBeta = BETA.getInstance().calculateTrust(locationR, locationS, locationRatings.size(), steps);
+        float priceBeta = BETA.getInstance().calculateTrust(priceR, priceS, priceRatings.size(), steps);
+        float dateBeta = BETA.getInstance().calculateTrust(dateR, dateS, dateRatings.size(), steps);
+        float musicBeta = BETA.getInstance().calculateTrust(musicR, musicS, musicRatings.size(), steps);
 
         float finalBetaTrust = (0.2f * locationBeta + 0.4f * priceBeta + 0.6f * dateBeta + 0.8f * musicBeta) / (2.0f);
 
