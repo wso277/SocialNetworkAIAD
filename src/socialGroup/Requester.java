@@ -158,13 +158,13 @@ public class Requester implements Stepable {
         BETA.getInstance().calculateRS(musicRatings.get(musicRatings.size() - 1), musicR, musicS);
 
         rLocation.put(id, locationR);
-        rLocation.put(id, priceR);
-        rLocation.put(id, dateR);
-        rLocation.put(id, musicR);
-        rLocation.put(id, locationS);
-        rLocation.put(id, priceS);
-        rLocation.put(id, dateS);
-        rLocation.put(id, musicS);
+        rPrice.put(id, priceR);
+        rDate.put(id, dateR);
+        rMusic.put(id, musicR);
+        sLocation.put(id, locationS);
+        sPrice.put(id, priceS);
+        sDate.put(id, dateS);
+        sMusic.put(id, musicS);
 
         ArrayList<Integer> steps = new ArrayList<>();
         for (int i = 0; i < locationRatings.size(); i++) {
