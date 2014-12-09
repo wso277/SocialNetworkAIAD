@@ -52,6 +52,7 @@ public class Requester implements Stepable {
     private float locationValue, priceValue, dateValue, musicValue, deltaLocation, deltaPrice, yyLocation, yyPrice;
     private HashMap<Integer, ArrayList<Float>> ratings = new HashMap<>();
     private HashMap<Integer, ArrayList<Float>> rLocation, rPrice, rDate, rMusic, sLocation, sPrice, sDate, sMusic;
+
     public Requester(int location, int price, Date date1, Date date2, String musicType, int id) throws WrongDateException {
         this.location = location;
         this.price = price;
@@ -83,7 +84,7 @@ public class Requester implements Stepable {
 
     public void step() {
 
-        System.out.println("REQUESTER NUMBER " + id + " -----------");
+        //System.out.println("REQUESTER NUMBER " + id + " -----------");
 
         ArrayList<Requester> reqs = new ArrayList<>();
         ArrayList<Responder> resps = new ArrayList<>();
@@ -124,15 +125,29 @@ public class Requester implements Stepable {
                 crDateTrust = FIRE.getInstance().calculateCRT(resp.getDateRatings());
                 crMusicTrust = FIRE.getInstance().calculateCRT(resp.getMusicTypeRatings());
 
-                calculateRatings(res, resp, i);
+                if (!res.get(i).isProcessed()) {
+                    calculateRatings(res, resp, i);
+                }
                 nResponses = i;
             }
 
             if (nResponses >= 0) {
 
                 ArrayList<Float> respRatings = ratings.get(resp.getId());
+
+                locationRatings.clear();
+                priceRatings.clear();
+                dateRatings.clear();
+                musicRatings.clear();
+
                 calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
 
+                locationRatings.clear();
+                priceRatings.clear();
+                dateRatings.clear();
+                musicRatings.clear();
+                getSeparateRatings(locationRatings, priceRatings, dateRatings, musicRatings, respRatings);
+                //System.out.println("SIZE BEFORE BETA: " + locationRatings.size());
                 calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
             }
 
@@ -167,10 +182,13 @@ public class Requester implements Stepable {
             musicS = new ArrayList<>();
         }
 
-        BETA.getInstance().calculateRS(locationRatings.get(locationRatings.size() - 1), locationR, locationS);
-        BETA.getInstance().calculateRS(priceRatings.get(priceRatings.size() - 1), priceR, priceS);
-        BETA.getInstance().calculateRS(dateRatings.get(dateRatings.size() - 1), dateR, dateS);
-        BETA.getInstance().calculateRS(musicRatings.get(musicRatings.size() - 1), musicR, musicS);
+        if (locationRatings.size() > locationR.size()) {
+
+            BETA.getInstance().calculateRS(locationRatings.get(locationRatings.size() - 1), locationR, locationS);
+            BETA.getInstance().calculateRS(priceRatings.get(priceRatings.size() - 1), priceR, priceS);
+            BETA.getInstance().calculateRS(dateRatings.get(dateRatings.size() - 1), dateR, dateS);
+            BETA.getInstance().calculateRS(musicRatings.get(musicRatings.size() - 1), musicR, musicS);
+        }
 
         rLocation.put(id, locationR);
         rPrice.put(id, priceR);
@@ -186,6 +204,8 @@ public class Requester implements Stepable {
             steps.add(i);
         }
 
+        //System.out.println("SIZE IN BETA " + locationRatings.size());
+        //System.out.println("LOCATION RATINGS SIZE: " + locationRatings.size() + " LOCATIONR SIZE: " + locationR.size());
         float locationBeta = BETA.getInstance().calculateTrust(locationR, locationS, locationRatings.size(), steps);
         float priceBeta = BETA.getInstance().calculateTrust(priceR, priceS, priceRatings.size(), steps);
         float dateBeta = BETA.getInstance().calculateTrust(dateR, dateS, dateRatings.size(), steps);
@@ -210,13 +230,14 @@ public class Requester implements Stepable {
         float witnessPriceTrust;
         float witnessDateTrust;
         float witnessMusicTrust;
-        for (int j = 0; j < respRatings.size(); j++) {
-            locationRatings.add(respRatings.get(j++));
-            priceRatings.add(respRatings.get(j++));
-            dateRatings.add(respRatings.get(j++));
-            musicRatings.add(respRatings.get(j));
-        }
 
+        getSeparateRatings(locationRatings, priceRatings, dateRatings, musicRatings, respRatings);
+        /*System.out.println("ID RESPONDER: " + (int) pairs.getKey() + " ID REQUESTER: " + id);
+        System.out.println("RESPRATINGS: " + respRatings);
+        System.out.println("LOCATIONRATINGS: " + locationRatings);
+        System.out.println("\n\n");
+        //System.out.println("LOCATION RATINGS SIZE SEPARATE : " + locationRatings.size() + " ID REQUESTER: " + id + " ID RESPONDER: " + (int) pairs.getKey());
+        //System.out.println("SIZE IN TRUST: " + locationRatings.size());
         /*System.out.println("---------------------------------------");
         System.out.println("LOCATIONRATINGS: " + locationRatings);
         System.out.println("PRICERATINGS: " + priceRatings);
@@ -249,6 +270,10 @@ public class Requester implements Stepable {
             add(RULES.get(3));
         }});
 
+        locationRatings.clear();
+        priceRatings.clear();
+        dateRatings.clear();
+        musicRatings.clear();
         if (position != 0) {
             ArrayList<Float> rates = reqs.get(position - 1).getRatings((Integer) pairs.getKey());
             if (rates != null) {
@@ -261,6 +286,8 @@ public class Requester implements Stepable {
                 }
             }
         }
+
+        //System.out.println("SIZE AFTER WITNESS: " + locationRatings.size());
 
         witnessLocalTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings);
         witnessPriceTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), priceRatings);
@@ -289,8 +316,20 @@ public class Requester implements Stepable {
                 System.out.println("PRICE TRUST: " + priceFinalTrust);
                 System.out.println("DATE TRUST: " + dateFinalTrust);
                 System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
-        System.out.println("FINAL TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
-        System.out.println("---------------------------------------");
+        System.out.println("FINAL FIRE TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
+        //System.out.println("---------------------------------------");
+    }
+
+    private void getSeparateRatings(ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, ArrayList<Float> respRatings) {
+        //System.out.println("RESP RATINGS SIZE: " + respRatings.size());
+        //System.out.println(("RESP RATINGS /4: " + respRatings.size()/4));
+        for (int j = 0; j < respRatings.size(); j++) {
+            locationRatings.add(respRatings.get(j++));
+            priceRatings.add(respRatings.get(j++));
+            dateRatings.add(respRatings.get(j++));
+            musicRatings.add(respRatings.get(j));
+        }
+        //System.out.println("LOCATION RATINGS SIZE SEPARATE : " + locationRatings.size() + " ID: " + id);
     }
 
     private void calculateRatings(ArrayList<Response> res, Responder resp, int i) {
@@ -345,6 +384,7 @@ public class Requester implements Stepable {
         System.out.println("---------------------------------------");*/
 
         ratings.put(res.get(i).getId(), rate);
+        res.get(i).setProcessed();
 
         resp.addLocationRating(locationValue);
         resp.addPriceRating(priceValue);
@@ -376,16 +416,24 @@ public class Requester implements Stepable {
         return ratings.get(id);
     }
 
-    public void addResponse(int id, Response res) {
-        ArrayList<Response> resp = responses.get(id);
+    public void addResponse(int resId, Response res) {
+        ArrayList<Response> resp = responses.get(resId);
+        //System.out.println("RESPONDER: " + resId + " REQUESTER: " + id);
+        //System.out.println("ID: " + resId);
         if (resp != null) {
+            //System.out.println("RESP SIZE BEFORE: " + resp.size());
             resp.add(res);
-            responses.put(id, resp);
+            responses.remove(resId);
+            responses.put(resId, resp);
         } else {
+
             resp = new ArrayList<>();
+
+            //System.out.println("RESP SIZE BEFORE: " + resp.size());
             resp.add(res);
-            responses.put(id, resp);
+            responses.put(resId, resp);
         }
+        //System.out.println("RESP SIZE AFTER: " + resp.size());
     }
 
     public Responder getResponder(ArrayList<Responder> resp, int id) {
