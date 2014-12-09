@@ -94,8 +94,8 @@ public class Responder implements Stepable {
                 res.setMusicType(Requester.MusicTypes.get(1));
             }
         }
-        res.setId(id);
-        req.addResponse(id, res);
+        res.setId(this.id);
+        req.addResponse(this.id, res);
     }
 
     public void isHigher(ArrayList<Float> array, float val) {

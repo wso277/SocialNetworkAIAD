@@ -9,6 +9,7 @@ public class Response {
     private Date date;
     private String musicType;
     private int id;
+    private boolean processed;
     public Response() {
 
     }
@@ -19,9 +20,16 @@ public class Response {
         this.date = date;
         this.musicType = musicType;
         this.id = id;
+        this.processed = false;
     }
 
+    public void setProcessed() {
+        this.processed = true;
+    }
 
+    public boolean isProcessed() {
+        return processed;
+    }
 
     public int getLocation() {
         return location;

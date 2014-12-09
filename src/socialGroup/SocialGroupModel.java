@@ -62,7 +62,7 @@ public class SocialGroupModel extends SimpleModel {
     }
 
     protected void preStep() {
-        System.out.println("Initiating step " + getTickCount());
+        System.out.println("\n\n\nInitiating step " + getTickCount());
     }
 
     protected void postStep() {
