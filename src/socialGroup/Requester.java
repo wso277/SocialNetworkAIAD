@@ -3,6 +3,9 @@ package socialGroup;
 import exceptions.WrongDateException;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
+import uchicago.src.sim.network.DefaultDrawableNode;
+import uchicago.src.sim.network.DefaultNode;
+import uchicago.src.sim.network.EdgeFactory;
 import util.BETA;
 import util.Date;
 import util.FIRE;
@@ -102,6 +105,18 @@ public class Requester implements Stepable {
             ArrayList<Response> res = (ArrayList) pairs.getValue();
 
             Responder resp = getResponder(resps, (int) pairs.getKey());
+            for(AgentNode node : SocialGroupModel.drawableAgents){
+                if(node.getType().equals("Responder") && node.getAgentId() == resp.getId()){
+                    for(AgentNode myNode : SocialGroupModel.drawableAgents){
+                        if(myNode.getType().equals("Requester") && myNode.getAgentId() == getId()){
+                            node.makeEdgeTo(myNode);
+                            System.out.println("FROM " + Integer.toString(node.getAgentId()) + " TO " + Integer.toString(myNode.getAgentId()));
+                            SocialGroupModel.surface.updateDisplay();
+                        }
+                    }
+                }
+            }
+
             int nResponses = -1;
             for (int i = 0; i < res.size(); i++) {
                 crLocationTrust = FIRE.getInstance().calculateCRT(resp.getLocationRatings());
