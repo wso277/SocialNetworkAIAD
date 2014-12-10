@@ -107,17 +107,6 @@ public class Requester implements Stepable {
             ArrayList<Response> res = (ArrayList) pairs.getValue();
 
             Responder resp = getResponder(resps, (int) pairs.getKey());
-            for(AgentNode node : SocialGroupModel.drawableAgents){
-                if(node.getType().equals("Responder") && node.getAgentId() == resp.getId()){
-                    for(AgentNode myNode : SocialGroupModel.drawableAgents){
-                        if(myNode.getType().equals("Requester") && myNode.getAgentId() == getId()){
-                            node.makeEdgeTo(myNode);
-                            System.out.println("FROM " + Integer.toString(node.getAgentId()) + " TO " + Integer.toString(myNode.getAgentId()));
-                            SocialGroupModel.surface.updateDisplay();
-                        }
-                    }
-                }
-            }
 
             int nResponses = -1;
             for (int i = 0; i < res.size(); i++) {
@@ -149,7 +138,19 @@ public class Requester implements Stepable {
                 musicRatings.clear();
                 getSeparateRatings(locationRatings, priceRatings, dateRatings, musicRatings, respRatings);
                 //System.out.println("SIZE BEFORE BETA: " + locationRatings.size());
-                calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
+                float betaTrust = calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
+
+                for(AgentNode node : SocialGroupModel.drawableAgents){
+                    if(node.getType().equals("Responder") && node.getAgentId() == resp.getId()){
+                        for(AgentNode myNode : SocialGroupModel.drawableAgents){
+                            if(myNode.getType().equals("Requester") && myNode.getAgentId() == id){
+                                node.makeEdgeTo(myNode, betaTrust);
+                                System.out.println("FROM " + Integer.toString(node.getAgentId()) + " TO " + Integer.toString(myNode.getAgentId()));
+                                SocialGroupModel.surface.updateDisplay();
+                            }
+                        }
+                    }
+                }
             }
 
             locationRatings.clear();
@@ -161,7 +162,7 @@ public class Requester implements Stepable {
         //it.remove(); // avoids a ConcurrentModificationException
     }
 
-    private void calculateBetaTrust(int id, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings) {
+    private float calculateBetaTrust(int id, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings) {
         ArrayList<Float> locationR, priceR, dateR, musicR, locationS, priceS, dateS, musicS;
         locationR = rLocation.get(id);
         priceR = rPrice.get(id);
@@ -215,6 +216,8 @@ public class Requester implements Stepable {
         float finalBetaTrust = (0.2f * locationBeta + 0.4f * priceBeta + 0.6f * dateBeta + 0.8f * musicBeta) / (2.0f);
 
         System.out.println("FINAL BETA TRUST: " + finalBetaTrust);
+
+        return finalBetaTrust;
 
     }
 
@@ -317,6 +320,8 @@ public class Requester implements Stepable {
                 System.out.println("DATE TRUST: " + dateFinalTrust);
                 System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
         System.out.println("FINAL FIRE TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
+
+
         //System.out.println("---------------------------------------");
     }
 

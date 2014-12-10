@@ -75,13 +75,14 @@ public class SocialGroupModel extends SimpleModel {
 
         for (int i = 0; i < numberOfResponders; i++) {
             try {
-                agentList.add(new Responder(r.nextFloat(), r.nextFloat(), r.nextFloat(), r.nextFloat(), numberOfRequesters++));
+                agentList.add(new Responder(r.nextFloat(), r.nextFloat(), r.nextFloat(), r.nextFloat(), numberOfRequesters));
                 int x = r.nextInt(80);
                 int y = r.nextInt(80);
-                AgentNode node = new AgentNode(x, y, "Responder", i);
+                AgentNode node = new AgentNode(x, y, "Responder", numberOfRequesters);
                 node.setColor(Color.RED);
                 node.setNodeLabel(Integer.toString(i));
                 drawableAgents.add(node);
+                numberOfRequesters++;
             } catch (WrongProbabilityValue e) {
                 System.err.println(e.getMessage());
             }
