@@ -43,12 +43,19 @@ public class SocialGroupModel extends SimpleModel {
         for (int i = 0; i < numberOfRequesters; i++) {
             Date[] arr = Date.getNewDates();
             try {
-                agentList.add(new Requester(r.nextInt(MAX_DISTANCE), r.nextInt(MAX_PRICE), arr[0], arr[1], Requester
-                        .MusicTypes.get(r.nextInt(Requester.MusicTypes.size())), i));
+                Requester req = new Requester(r.nextInt(MAX_DISTANCE), r.nextInt(MAX_PRICE), arr[0], arr[1], Requester.MusicTypes.get(r.nextInt(Requester.MusicTypes.size())), i);
+                if (i > 0) {
+                    req.setNeighbour((Requester) (agentList.get(i - 1)));
+                }
+
+                agentList.add(req);
             } catch (WrongDateException e) {
                 System.err.println(e.getMessage());
             }
         }
+
+        Requester req = (Requester) (agentList.get(0));
+        req.setNeighbour((Requester) (agentList.get(agentList.size() - 1)));
 
         for (int i = 0; i < numberOfResponders; i++) {
             try {
@@ -69,7 +76,7 @@ public class SocialGroupModel extends SimpleModel {
         System.out.println("Done step " + getTickCount());
     }
 
-    public ArrayList getAgentList(){
+    public ArrayList getAgentList() {
         return agentList;
     }
 

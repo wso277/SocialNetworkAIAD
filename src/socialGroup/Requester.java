@@ -45,6 +45,7 @@ public class Requester implements Stepable {
     private Date dateEnd;
     private String musicType;
     private int id;
+    private Requester neighbour;
     private HashMap<Integer, ArrayList<Response>> responses;
     private float locationValue, priceValue, dateValue, musicValue, deltaLocation, deltaPrice, yyLocation, yyPrice;
     private HashMap<Integer, ArrayList<Float>> ratings = new HashMap<>();
@@ -81,7 +82,7 @@ public class Requester implements Stepable {
 
     public void step() {
 
-        //System.out.println("REQUESTER NUMBER " + id + " -----------");
+        System.out.println("REQUESTER NUMBER " + id + " -----------");
 
         ArrayList<Requester> reqs = new ArrayList<>();
         ArrayList<Responder> resps = new ArrayList<>();
@@ -259,8 +260,8 @@ public class Requester implements Stepable {
         priceRatings.clear();
         dateRatings.clear();
         musicRatings.clear();
-        if (position != 0) {
-            ArrayList<Float> rates = reqs.get(position - 1).getRatings((Integer) pairs.getKey());
+
+        ArrayList<Float> rates = neighbour.getNeighbourRatings((Integer) pairs.getKey(), this.id);
             if (rates != null) {
 
                 for (int j = 0; j < rates.size(); j++) {
@@ -270,7 +271,6 @@ public class Requester implements Stepable {
                     musicRatings.add(rates.get(j));
                 }
             }
-        }
 
         //System.out.println("SIZE AFTER WITNESS: " + locationRatings.size());
 
@@ -401,6 +401,16 @@ public class Requester implements Stepable {
         return ratings.get(id);
     }
 
+    public ArrayList<Float> getNeighbourRatings(int resId, int id) {
+        ArrayList<Float> res = neighbour.getRatings(resId);
+
+        if (res == null && neighbour.getNeighbour().getId() != id) {
+            res = neighbour.getNeighbourRatings(resId, id);
+        }
+
+        return res;
+    }
+
     public void addResponse(int resId, Response res) {
         ArrayList<Response> resp = responses.get(resId);
         //System.out.println("RESPONDER: " + resId + " REQUESTER: " + id);
@@ -454,5 +464,13 @@ public class Requester implements Stepable {
 
     public String getMusicType() {
         return musicType;
+    }
+
+    public void setNeighbour(Requester req) {
+        neighbour = req;
+    }
+
+    public Requester getNeighbour() {
+        return neighbour;
     }
 }

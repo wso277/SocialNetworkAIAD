@@ -140,7 +140,7 @@ public class FIRE {
     }
 
     public float finalTrust(float it, float rt, float wt, float crt) {
-        return (float) ((0.8 * it + 0.2 * rt + 0.5 * wt + 0.2 * crt) / (0.8 + 0.2 + 0.5 + 0.2));
+        return (float) ((0.8 * it + 0.2 * rt + 0.6 * wt + 0.2 * crt) / (0.8 + 0.2 + 0.6 + 0.2));
     }
 
     public int getMAX_RESPONSES() {
