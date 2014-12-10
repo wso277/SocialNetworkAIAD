@@ -12,7 +12,7 @@ import uchicago.src.sim.network.Edge;
 public class AgentNode extends DefaultDrawableNode{
     private String type;
     private int id;
-    private final int DELTA_DISTANCE = 1000;
+    private final int DELTA_DISTANCE = 100;
 
     public AgentNode(int x, int y, String type, int id){
         OvalNetworkItem oval = new OvalNetworkItem(x,y);
@@ -25,8 +25,13 @@ public class AgentNode extends DefaultDrawableNode{
     }
 
     public void makeEdgeTo(DefaultNode destNode, float betaTrust){
-        int doApproximate = 1;
-        if(betaTrust < 0.5) doApproximate = -1;
+        if(betaTrust < 0.5) {
+            setColor(Color.CYAN);
+            return;
+        }
+        else{
+            setColor(Color.GREEN);
+        }
 
         if(!hasEdgeTo(destNode)){
             AgentEdge edge = new AgentEdge(this, destNode, 1);
@@ -38,28 +43,32 @@ public class AgentNode extends DefaultDrawableNode{
             double myY = getY();
             double destX = ((DefaultDrawableNode)destNode).getX();
             double destY = ((DefaultDrawableNode)destNode).getY();
-
+            int proximityFactor = 0;
             double diffX = Math.abs(myX - destX);
             double diffY = Math.abs(myY - destY);
 
-            if(diffX <= 5 || diffX >= 50 || diffY <= 5 || diffY >= 50) return;
+            if(diffX <= 1 || diffX >= 80 || diffY <= 1 || diffY >= 80) return;
+
+           if(betaTrust >= 0.5 && betaTrust < 0.6) proximityFactor = 0;
+            else if(betaTrust >= 0.6 && betaTrust < 0.7) proximityFactor = 1;
+            else if(betaTrust >= 0.7 && betaTrust < 0.8) proximityFactor = 2;
+            else if(betaTrust >= 0.8 && betaTrust < 0.9) proximityFactor = 3;
+            else if(betaTrust >= 0.9 && betaTrust <= 1.0) proximityFactor = 4;
+
+            proximityFactor *= (DELTA_DISTANCE/5);
 
             if(myX > destX){
-                setX(myX - doApproximate * diffX / DELTA_DISTANCE);
-                ((DefaultDrawableNode)destNode).setX(destX + doApproximate * diffX / DELTA_DISTANCE);
+                setX(myX - diffX / (DELTA_DISTANCE - proximityFactor));
             }
             else{
-                setX(myX + doApproximate * diffX / DELTA_DISTANCE);
-                ((DefaultDrawableNode)destNode).setX(destX - doApproximate * diffX / DELTA_DISTANCE);
+                setX(myX + diffX / (DELTA_DISTANCE - proximityFactor));
             }
 
             if(myY > destY){
-                setY(myY - doApproximate * diffY / DELTA_DISTANCE);
-                ((DefaultDrawableNode)destNode).setY(destY + doApproximate * diffY / DELTA_DISTANCE);
+               setY(myY - diffY / (DELTA_DISTANCE - proximityFactor));
             }
             else{
-                setY(myY + doApproximate * diffY / DELTA_DISTANCE);
-                ((DefaultDrawableNode)destNode).setY(destY - doApproximate * diffY / DELTA_DISTANCE);
+                setY(myY + diffY / (DELTA_DISTANCE - proximityFactor));
             }
         }
     }

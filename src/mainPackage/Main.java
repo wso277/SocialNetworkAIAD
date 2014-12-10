@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class Main {
 
     private static final boolean BATCH_MODE = true;
-    private static final int MAX_NUMBER_AGENTS = 5;
+    private static final int MAX_NUMBER_AGENTS = 10;
     private static SocialGroupModel socialModel;
 
     public static void main(String[] args) {
