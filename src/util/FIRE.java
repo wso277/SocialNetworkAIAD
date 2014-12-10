@@ -9,7 +9,7 @@ import java.util.Collections;
 public class FIRE {
 
     private static FIRE instance = null;
-    private final int m = 200;
+    private final int m = 100;
     private final int MAX_RESPONSES = 10;
 
     public FIRE() {
@@ -37,13 +37,13 @@ public class FIRE {
                     step -= baseVal;
                 }
             } else {
-                for (int i = 0; i < Math.ceil(values.size() / 2); i++) {
+                for (int i = 0; i < Math.floor(values.size() / 2.0f); i++) {
                     result.add(baseVal * step);
                     step += baseVal;
                 }
                 step = 2f - baseVal;
                 result.add(1f);
-                for (int i = values.size(); i > Math.ceil(values.size() / 2); i--) {
+                for (int i = values.size(); i > Math.ceil(values.size() / 2.0f); i--) {
                     resultAux.add(baseVal * step);
                     step -= baseVal;
                 }
@@ -53,7 +53,6 @@ public class FIRE {
             result.addAll(resultAux);
             Collections.sort(result);
         }
-
         return result;
     }
 
@@ -67,9 +66,6 @@ public class FIRE {
 
     public float calculateIT(ArrayList<Float> omegas, ArrayList<Float> values) {
         float result = 0f;
-        if (omegas.size() != values.size()) {
-            return -1;
-        }
         for (int i = 0; i < omegas.size(); i++) {
             result += omegas.get(i) * values.get(i);
         }
@@ -97,16 +93,20 @@ public class FIRE {
         return result;
     }
 
-    public float calculatePD(ArrayList<Float> omegas, ArrayList<Float> values, float ti) {
+    public float calculatePD(ArrayList<Float> omegas, ArrayList<Float> values, float trust) {
         float result = 0, res = 0;
         for (int i = 0; i < omegas.size(); i++) {
-            res += (omegas.get(i) * Math.abs(values.get(i) - ti)) / 2;
+            res += (omegas.get(i) * Math.abs(values.get(i) - trust)) / 2;
         }
         result = 1 - res;
         return result;
     }
 
     public float calculatePTI(float pn, float pd) {
+        return (float) pn * pd;
+    }
+
+    public float calculatePTC(float pn, float pd) {
         return (float) pn * pd;
     }
 
@@ -139,8 +139,8 @@ public class FIRE {
         return (float) pn * pd;
     }
 
-    public float finalTrust(float it, float rt, float wt, float crt) {
-        return (float) ((0.8 * it + 0.2 * rt + 0.6 * wt + 0.2 * crt) / (0.8 + 0.2 + 0.6 + 0.2));
+    public float finalTrust(float it, float rt, float wt, float crt, float pit, float prt, float pwt, float pcrt) {
+        return (float) (((0.8 * pit) * it + (0.2 * prt) * rt + (0.6 * pwt) * wt + (0.2 * pcrt) * crt) / ((0.8 * pit) + (0.2 * prt) + (0.6 * pwt) + (0.2 * pcrt)));
     }
 
     public int getMAX_RESPONSES() {

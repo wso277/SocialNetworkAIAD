@@ -10,7 +10,6 @@ import uchicago.src.sim.gui.OvalNetworkItem;
 import uchicago.src.sim.network.DefaultDrawableNode;
 import util.Date;
 
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -32,7 +31,7 @@ public class SocialGroupModel extends SimpleModel {
         super.setup();
         autoStep = true;
         shuffle = true;
-        if(surface != null) surface.dispose();
+        if (surface != null) surface.dispose();
         surface = new DisplaySurface(this, "NETWORK DISPLAY");
         registerDisplaySurface("Display", surface);
     }
@@ -55,13 +54,13 @@ public class SocialGroupModel extends SimpleModel {
         for (int i = 0; i < numberOfRequesters; i++) {
             Date[] arr = Date.getNewDates();
             try {
-                Requester req = new Requester(r.nextInt(MAX_DISTANCE), r.nextInt(MAX_PRICE), arr[0], arr[1], Requester.MusicTypes.get(r.nextInt(Requester.MusicTypes.size())), i);
+                Requester req = new Requester(r.nextInt(MAX_DISTANCE), r.nextInt(MAX_PRICE), arr[0], arr[1], Responder.music.get(r.nextInt(Responder.music.size())), i);
                 if (i > 0) {
                     req.setNeighbour((Requester) (agentList.get(i - 1)));
                 }
                 int x = r.nextInt(80);
                 int y = r.nextInt(80);
-                AgentNode node = new AgentNode(x, y,"Requester", i);
+                AgentNode node = new AgentNode(x, y, "Requester", i);
                 node.setColor(Color.BLUE);
                 drawableAgents.add(node);
                 agentList.add(req);
@@ -91,12 +90,13 @@ public class SocialGroupModel extends SimpleModel {
         System.out.println("AgentList size: " + agentList.size());
     }
 
-    public void buildDisplay(){
+    public void buildDisplay() {
         Network2DDisplay display = new Network2DDisplay(drawableAgents, 100, 100);
         surface.addDisplayableProbeable(display, "Display");
         surface.addZoomable(display);
         addSimEventListener(surface);
     }
+
     protected void preStep() {
         System.out.println("\n\n\nInitiating step " + getTickCount());
     }
@@ -117,8 +117,7 @@ public class SocialGroupModel extends SimpleModel {
         return MAX_PRICE;
     }
 
-
-    public void begin(){
+    public void begin() {
         buildModel();
         buildDisplay();
         buildSchedule();

@@ -22,7 +22,7 @@ public class Requester implements Stepable {
         add(new Rule("requester", "responder", "musicType", 0.9f, 0.3f));
     }};
 
-    public static final ArrayList<String> MusicTypes = new ArrayList<String>() {{
+    public static HashMap<String, String> MusicTypes;/* = new ArrayList<String>() {{
         add("ROCK");
         add("CLASSIC");
         add("JAZZ");
@@ -32,9 +32,8 @@ public class Requester implements Stepable {
         add("METAL");
         add("RNB");
         add("REGGAE");
-        add("PIMBA");
         add("FADO");
-    }};
+    }};*/
 
     //Distance the requester wants to travel
     private int location;
@@ -78,6 +77,20 @@ public class Requester implements Stepable {
         sDate = new HashMap<>();
         sMusic = new HashMap<>();
 
+        MusicTypes = new HashMap<>();
+
+        MusicTypes.put("ROCK", "ROCK");
+        MusicTypes.put("METAL", "ROCK");
+        MusicTypes.put("POP", "ROCK");
+        MusicTypes.put("CLASSIC", "CLASSIC");
+        MusicTypes.put("JAZZ", "CLASSIC");
+        MusicTypes.put("FADO", "CLASSIC");
+        MusicTypes.put("RNB", "RNB");
+        MusicTypes.put("REGGAE", "RNB");
+        MusicTypes.put("FUNK", "RNB");
+        MusicTypes.put("HOUSE", "HOUSE");
+        MusicTypes.put("DRUMNBASS", "HOUSE");
+        MusicTypes.put("BIGROOM", "HOUSE");
     }
 
     public void step() {
@@ -127,7 +140,7 @@ public class Requester implements Stepable {
                 dateRatings.clear();
                 musicRatings.clear();
 
-                calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings);
+                calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings, nResponses + 1);
 
                 locationRatings.clear();
                 priceRatings.clear();
@@ -137,10 +150,10 @@ public class Requester implements Stepable {
                 //System.out.println("SIZE BEFORE BETA: " + locationRatings.size());
                 float betaTrust = calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
 
-                for(AgentNode node : SocialGroupModel.drawableAgents){
-                    if(node.getType().equals("Responder") && node.getAgentId() == resp.getId()){
-                        for(AgentNode myNode : SocialGroupModel.drawableAgents){
-                            if(myNode.getType().equals("Requester") && myNode.getAgentId() == id){
+                for (AgentNode node : SocialGroupModel.drawableAgents) {
+                    if (node.getType().equals("Responder") && node.getAgentId() == resp.getId()) {
+                        for (AgentNode myNode : SocialGroupModel.drawableAgents) {
+                            if (myNode.getType().equals("Requester") && myNode.getAgentId() == id) {
                                 node.makeEdgeTo(myNode, betaTrust);
                                 System.out.println("FROM " + Integer.toString(node.getAgentId()) + " TO " + Integer.toString(myNode.getAgentId()));
                                 SocialGroupModel.surface.updateDisplay();
@@ -218,7 +231,7 @@ public class Requester implements Stepable {
 
     }
 
-    private void calculateFireTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings) {
+    private void calculateFireTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings, int nResponses) {
         float interactionLocalTrust;
         float interactionPriceTrust;
         float interactionDateTrust;
@@ -231,6 +244,12 @@ public class Requester implements Stepable {
         float witnessPriceTrust;
         float witnessDateTrust;
         float witnessMusicTrust;
+
+        float pnCR = FIRE.getInstance().calculatePN(resp.getLocationRatings().size());
+        float reliabilityCRLocation = FIRE.getInstance().calculatePTCR(pnCR, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(resp.getLocationRatings()), resp.getLocationRatings(), crLocationTrust));
+        float reliabilityCRPrice = FIRE.getInstance().calculatePTCR(pnCR, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(resp.getPriceRatings()), resp.getPriceRatings(), crPriceTrust));
+        float reliabilityCRDate = FIRE.getInstance().calculatePTCR(pnCR, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(resp.getDateRatings()), resp.getDateRatings(), crDateTrust));
+        float reliabilityCRMusic = FIRE.getInstance().calculatePTCR(pnCR, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(resp.getMusicTypeRatings()), resp.getMusicTypeRatings(), crMusicTrust));
 
         getSeparateRatings(locationRatings, priceRatings, dateRatings, musicRatings, respRatings);
         /*System.out.println("ID RESPONDER: " + (int) pairs.getKey() + " ID REQUESTER: " + id);
@@ -250,6 +269,12 @@ public class Requester implements Stepable {
         interactionPriceTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(priceRatings), priceRatings);
         interactionDateTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(dateRatings), dateRatings);
         interactionMusicTrust = FIRE.getInstance().calculateIT(FIRE.getInstance().calculateOmegas(musicRatings), musicRatings);
+
+        float pnIT = FIRE.getInstance().calculatePN(nResponses);
+        float reliabilityITLocation = FIRE.getInstance().calculatePTI(pnIT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings, interactionLocalTrust));
+        float reliabilityITPrice = FIRE.getInstance().calculatePTI(pnIT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(priceRatings), priceRatings, interactionPriceTrust));
+        float reliabilityITDate = FIRE.getInstance().calculatePTI(pnIT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(dateRatings), dateRatings, interactionDateTrust));
+        float reliabilityITMusic = FIRE.getInstance().calculatePTI(pnIT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(musicRatings), musicRatings, interactionMusicTrust));
 
         /*System.out.println("---------------------------------------");
         System.out.println("LOCATIONTRUST: " + interactionLocalTrust);
@@ -277,15 +302,15 @@ public class Requester implements Stepable {
         musicRatings.clear();
 
         ArrayList<Float> rates = neighbour.getNeighbourRatings((Integer) pairs.getKey(), this.id);
-            if (rates != null) {
+        if (rates != null) {
 
-                for (int j = 0; j < rates.size(); j++) {
-                    locationRatings.add(rates.get(j++));
-                    priceRatings.add(rates.get(j++));
-                    dateRatings.add(rates.get(j++));
-                    musicRatings.add(rates.get(j));
-                }
+            for (int j = 0; j < rates.size(); j++) {
+                locationRatings.add(rates.get(j++));
+                priceRatings.add(rates.get(j++));
+                dateRatings.add(rates.get(j++));
+                musicRatings.add(rates.get(j));
             }
+        }
 
         //System.out.println("SIZE AFTER WITNESS: " + locationRatings.size());
 
@@ -294,6 +319,12 @@ public class Requester implements Stepable {
         witnessDateTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), dateRatings);
         witnessMusicTrust = FIRE.getInstance().calculateWT(FIRE.getInstance().calculateOmegas(locationRatings), musicRatings);
 
+        float pnWT = FIRE.getInstance().calculatePN(locationRatings.size());
+        float reliabilityWTLocation = FIRE.getInstance().calculatePTW(pnWT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(locationRatings), locationRatings, witnessLocalTrust));
+        float reliabilityWTPrice = FIRE.getInstance().calculatePTW(pnWT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(priceRatings), priceRatings, witnessPriceTrust));
+        float reliabilityWTDate = FIRE.getInstance().calculatePTW(pnWT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(dateRatings), dateRatings, witnessDateTrust));
+        float reliabilityWTMusic = FIRE.getInstance().calculatePTW(pnWT, FIRE.getInstance().calculatePD(FIRE.getInstance().calculateOmegas(musicRatings), musicRatings, witnessMusicTrust));
+
                 /*System.out.println("---------------------------------------");
                 System.out.println("INTERACTION : " + interactionLocalTrust);
                 System.out.println("ROLE: " + roleLocalTrust);
@@ -301,12 +332,12 @@ public class Requester implements Stepable {
                 System.out.println("CR : " + crLocationTrust);
                 System.out.println("---------------------------------------");*/
 
-        float localFinalTrust = FIRE.getInstance().finalTrust(interactionLocalTrust, roleLocalTrust, witnessLocalTrust, crLocationTrust);
+        float localFinalTrust = FIRE.getInstance().finalTrust(interactionLocalTrust, roleLocalTrust, witnessLocalTrust, crLocationTrust, reliabilityITLocation, 0.5f, reliabilityWTLocation, reliabilityCRLocation);
 
-        float priceFinalTrust = FIRE.getInstance().finalTrust(interactionPriceTrust, rolePriceTrust, witnessPriceTrust, crPriceTrust);
-        float dateFinalTrust = FIRE.getInstance().finalTrust(interactionDateTrust, roleDateTrust, witnessDateTrust, crDateTrust);
+        float priceFinalTrust = FIRE.getInstance().finalTrust(interactionPriceTrust, rolePriceTrust, witnessPriceTrust, crPriceTrust, reliabilityITPrice, 0.5f, reliabilityWTPrice, reliabilityCRPrice);
+        float dateFinalTrust = FIRE.getInstance().finalTrust(interactionDateTrust, roleDateTrust, witnessDateTrust, crDateTrust, reliabilityITDate, 0.5f, reliabilityWTDate, reliabilityCRDate);
 
-        float musicFinalTrust = FIRE.getInstance().finalTrust(interactionMusicTrust, roleMusicTrust, witnessMusicTrust, crMusicTrust);
+        float musicFinalTrust = FIRE.getInstance().finalTrust(interactionMusicTrust, roleMusicTrust, witnessMusicTrust, crMusicTrust, reliabilityITMusic, 0.5f, reliabilityWTMusic, reliabilityCRMusic);
 
         float finalTrust = (0.2f * localFinalTrust + 0.4f * priceFinalTrust + 0.6f * dateFinalTrust + 0.8f * musicFinalTrust) / (2.0f);
 
@@ -317,7 +348,6 @@ public class Requester implements Stepable {
                 System.out.println("DATE TRUST: " + dateFinalTrust);
                 System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
         System.out.println("FINAL FIRE TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
-
 
         //System.out.println("---------------------------------------");
     }
@@ -359,6 +389,8 @@ public class Requester implements Stepable {
 
         if (res.get(i).getMusicType().equals(musicType)) {
             musicValue = 1;
+        } else if (MusicTypes.get(res.get(i).getMusicType()).equals(MusicTypes.get(musicType))) {
+            musicValue = 0.5f;
         } else {
             musicValue = -1;
         }

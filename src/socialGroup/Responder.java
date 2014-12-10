@@ -1,6 +1,5 @@
 package socialGroup;
 
-
 import exceptions.WrongProbabilityValue;
 import mainPackage.Main;
 import uchicago.src.sim.engine.Stepable;
@@ -16,6 +15,21 @@ import java.util.Random;
  */
 public class Responder implements Stepable {
 
+    public static ArrayList<String> music = new ArrayList<String>() {{
+        add("ROCK");
+        add("CLASSIC");
+        add("JAZZ");
+        add("POP");
+        add("HOUSE");
+        add("FUNK");
+        add("METAL");
+        add("RNB");
+        add("REGGAE");
+        add("FADO");
+        add("DRUMNBASS");
+        add("BIGROOM");
+    }};
+
     //Probability of answering correctly to the location parameter (value between 0 and 1
     private float location;
     //Probability of answering correctly to the price parameter (value between 0 and 1
@@ -29,7 +43,6 @@ public class Responder implements Stepable {
     private ArrayList<Float> priceRatings;
     private ArrayList<Float> dateRatings;
     private ArrayList<Float> musicTypeRatings;
-
 
     public Responder(float location, float price, float date, float musicType, int id) throws WrongProbabilityValue {
         if (location < 0 || location > 1) {
@@ -60,8 +73,7 @@ public class Responder implements Stepable {
         Random r = new Random();
         Stepable stepable;
         do {
-            stepable = (Stepable) Main.getSocialModel().getAgentList().get(r.nextInt(Main.getSocialModel()
-                    .getAgentList().size()));
+            stepable = (Stepable) Main.getSocialModel().getAgentList().get(r.nextInt(Main.getSocialModel().getAgentList().size()));
 
         } while (!(stepable instanceof Requester));
 
@@ -88,11 +100,7 @@ public class Responder implements Stepable {
         if (r.nextFloat() <= musicType) {
             res.setMusicType(req.getMusicType());
         } else {
-            if (!Requester.MusicTypes.get(0).equals(req.getMusicType())) {
-                res.setMusicType(Requester.MusicTypes.get(0));
-            } else {
-                res.setMusicType(Requester.MusicTypes.get(1));
-            }
+            res.setMusicType(music.get(r.nextInt(music.size())));
         }
         res.setId(this.id);
         req.addResponse(this.id, res);
