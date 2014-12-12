@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Requester implements Stepable {
-
     private static final ArrayList<Rule> RULES = new ArrayList<Rule>() {{
         add(new Rule("requester", "responder", "location", -0.3f, 0.4f));
         add(new Rule("requester", "responder", "price", -0.1f, 0.5f));
@@ -140,7 +139,7 @@ public class Requester implements Stepable {
                 dateRatings.clear();
                 musicRatings.clear();
 
-                calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings, nResponses + 1);
+                float fireTrust = calculateFireTrust(reqs, position, locationRatings, priceRatings, dateRatings, musicRatings, crLocationTrust, crPriceTrust, crDateTrust, crMusicTrust, pairs, resp, respRatings, nResponses + 1);
 
                 locationRatings.clear();
                 priceRatings.clear();
@@ -150,12 +149,12 @@ public class Requester implements Stepable {
                 //System.out.println("SIZE BEFORE BETA: " + locationRatings.size());
                 float betaTrust = calculateBetaTrust((int) pairs.getKey(), locationRatings, priceRatings, dateRatings, musicRatings);
 
+
                 for (AgentNode node : SocialGroupModel.drawableAgents) {
                     if (node.getType().equals("Responder") && node.getAgentId() == resp.getId()) {
                         for (AgentNode myNode : SocialGroupModel.drawableAgents) {
                             if (myNode.getType().equals("Requester") && myNode.getAgentId() == id) {
                                 node.makeEdgeTo(myNode, betaTrust);
-                                System.out.println("FROM " + Integer.toString(node.getAgentId()) + " TO " + Integer.toString(myNode.getAgentId()));
                                 SocialGroupModel.surface.updateDisplay();
                             }
                         }
@@ -231,7 +230,7 @@ public class Requester implements Stepable {
 
     }
 
-    private void calculateFireTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings, int nResponses) {
+    private float calculateFireTrust(ArrayList<Requester> reqs, int position, ArrayList<Float> locationRatings, ArrayList<Float> priceRatings, ArrayList<Float> dateRatings, ArrayList<Float> musicRatings, float crLocationTrust, float crPriceTrust, float crDateTrust, float crMusicTrust, Map.Entry pairs, Responder resp, ArrayList<Float> respRatings, int nResponses) {
         float interactionLocalTrust;
         float interactionPriceTrust;
         float interactionDateTrust;
@@ -348,6 +347,7 @@ public class Requester implements Stepable {
                 System.out.println("DATE TRUST: " + dateFinalTrust);
                 System.out.println("MUSIC TRUST: " + musicFinalTrust);*/
         System.out.println("FINAL FIRE TRUST IN RESPONDER " + resp.getId() + ": " + finalTrust);
+        return finalTrust;
 
         //System.out.println("---------------------------------------");
     }
