@@ -390,7 +390,7 @@ public class Requester implements Stepable {
         if (res.get(i).getMusicType().equals(musicType)) {
             musicValue = 1;
         } else if (MusicTypes.get(res.get(i).getMusicType()).equals(MusicTypes.get(musicType))) {
-            musicValue = 0.5f;
+            musicValue = 0f;
         } else {
             musicValue = -1;
         }
